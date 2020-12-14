@@ -19,7 +19,7 @@ if ( IOS )
         set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fembed-bitcode")
         set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fembed-bitcode")
 else ()
-        set(CMAKE_CXX_FLAGS "-std=c++11")
+        set(CMAKE_CXX_FLAGS "${CMAKE_C_FLAGS} -std=c++11")
 endif ()
 
 option ( UINT_ESPECIALLY "using custom ulong" OFF )
@@ -302,7 +302,7 @@ endif ( )
 
 if ( WIN32 AND NOT CYGWIN )
     target_compile_definitions (xlua PRIVATE LUA_BUILD_AS_DLL /wd4146)
-else ( )
+elseif ( ANDROID )
     target_compile_definitions (xlua PRIVATE HAVE_GETTIMEOFDAY=TRUE)
 endif ( )
 

@@ -40,6 +40,116 @@ endif()
 set(LUA_SRC_PATH lua-${LUA_VERSION}/src)
 set(LUAJIT_SRC_PATH luajit-2.1.0b3/src)
 
+#begin lua-rapidjson
+set (RAPIDJSON_SRC lua-rapidjson/source/rapidjson.cpp)
+set_property(
+	SOURCE ${RAPIDJSON_SRC}
+	APPEND
+	PROPERTY COMPILE_DEFINITIONS
+	LUA_LIB
+)
+list(APPEND THIRDPART_INC  lua-rapidjson/include)
+set (THIRDPART_SRC ${THIRDPART_SRC} ${RAPIDJSON_SRC})
+#end lua-rapidjson
+
+#begin ai-xiangqi
+set (AI_XIANGQI_SRC ai/xiangqi/book.cpp 
+ai/xiangqi/evaluate.cpp
+ai/xiangqi/genmoves.cpp
+ai/xiangqi/hashes.cpp
+ai/xiangqi/movesort.cpp
+ai/xiangqi/position.cpp
+ai/xiangqi/preeval.cpp
+ai/xiangqi/pregen.cpp
+ai/xiangqi/search.cpp
+ai/xiangqi/aixiangqi.cpp)
+set_property(
+	SOURCE ${AI_XIANGQI_SRC}
+	APPEND
+	PROPERTY COMPILE_DEFINITIONS
+	LUA_LIB
+)
+list(APPEND THIRDPART_INC  ai/xiangqi)
+set (THIRDPART_SRC ${THIRDPART_SRC} ${AI_XIANGQI_SRC})
+#end ai-xiangqi
+
+#begin ai-weiqi
+set (AI_WEIQI_SRC ai/weiqi/aiweiqi.cpp
+ai/weiqi/AI.cpp
+ai/weiqi/aa_attackpat.c
+ai/weiqi/aftermath.c
+ai/weiqi/apatterns.c
+ai/weiqi/barriers.c
+ai/weiqi/board.c
+ai/weiqi/boardlib.c
+ai/weiqi/breakin.c
+ai/weiqi/cache.c
+ai/weiqi/clock.c
+ai/weiqi/combination.c
+ai/weiqi/conn.c
+ai/weiqi/connections.c
+ai/weiqi/dfa.c
+ai/weiqi/dpatterns.c
+ai/weiqi/dragon.c
+ai/weiqi/endgame.c
+ai/weiqi/endgame1.c
+ai/weiqi/eyes.c
+ai/weiqi/filllib.c
+ai/weiqi/fuseki.c
+ai/weiqi/fuseki13.c
+ai/weiqi/fuseki19.c
+ai/weiqi/fuseki9.c
+ai/weiqi/fusekipat.c
+ai/weiqi/genmove.c
+ai/weiqi/gg_utils.c
+ai/weiqi/globals.c
+ai/weiqi/gmp.c
+ai/weiqi/handicap.c
+ai/weiqi/handipat.c
+ai/weiqi/hash.c
+ai/weiqi/helpers.c
+ai/weiqi/influence.c
+ai/weiqi/influence1.c
+ai/weiqi/interface.c
+ai/weiqi/josekidb.c
+ai/weiqi/matchpat.c
+ai/weiqi/movelist.c
+ai/weiqi/move_reasons.c
+ai/weiqi/optics.c
+ai/weiqi/owl.c
+ai/weiqi/owl_attackpat.c
+ai/weiqi/owl_defendpat.c
+ai/weiqi/owl_vital_apat.c
+ai/weiqi/patterns.c
+ai/weiqi/persistent.c
+ai/weiqi/play_ascii.c
+ai/weiqi/printutils.c
+ai/weiqi/random.c
+ai/weiqi/readconnect.c
+ai/weiqi/reading.c
+ai/weiqi/score.c
+ai/weiqi/semeai.c
+ai/weiqi/sgffile.c
+ai/weiqi/sgfnode.c
+ai/weiqi/sgftree.c
+ai/weiqi/sgf_utils.c
+ai/weiqi/shapes.c
+ai/weiqi/showbord.c
+ai/weiqi/surround.c
+ai/weiqi/transform.c
+ai/weiqi/utils.c
+ai/weiqi/value_moves.c
+ai/weiqi/worm.c)
+set_property(
+	SOURCE ${AI_WEIQI_SRC}
+	APPEND
+	PROPERTY COMPILE_DEFINITIONS
+	LUA_LIB
+)
+list(APPEND THIRDPART_INC  ai/weiqi)
+set (THIRDPART_SRC ${THIRDPART_SRC} ${AI_WEIQI_SRC})
+#end ai-weiqi
+
 if (USING_LUAJIT)
 	
     if (APPLE AND NOT IOS AND NOT ANDROID)

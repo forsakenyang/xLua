@@ -303,7 +303,7 @@ endif ( )
 if ( WIN32 AND NOT CYGWIN )
     target_compile_definitions (xlua PRIVATE LUA_BUILD_AS_DLL /wd4146)
 else ( )
-    target_compile_definitions (xlua PRIVATE HAVE_GETTIMEOFDAY=TRUE TIME_WITH_SYS_TIME=TRUE)
+    target_compile_definitions (xlua PRIVATE HAVE_GETTIMEOFDAY TIME_WITH_SYS_TIME)
 endif ( )
 
 if (GC64 AND USING_LUAJIT)

@@ -91,7 +91,7 @@ inline int PopCnt32(uint32_t dw) {
 inline int64_t GetTime() {
 #ifdef HAVE_GETTIMEOFDAY
 	timeval tv;
-	gettimeofday(tv, NULL);
+	gettimeofday(&tv, NULL);
 	return (int64_t)tv.tv_sec * 1000 + tv.tv_usec;
 #else
 	timeb tb;

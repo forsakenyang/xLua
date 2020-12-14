@@ -1,5 +1,9 @@
 #include <assert.h>
+#ifdef HAVE_GETTIMEOFDAY
+#include <sys/time.h>
+#else
 #include <sys/timeb.h>
+#endif
 #include<iostream>
 #include<algorithm>
 using namespace std;
@@ -85,9 +89,15 @@ inline int PopCnt32(uint32_t dw) {
 }
 
 inline int64_t GetTime() {
+#ifdef HAVE_GETTIMEOFDAY
+	timeval tv;
+	gettimeofday(tv, NULL);
+	return (int64_t)tv.tv_sec * 1000 + tv.tv_usec;
+#else
 	timeb tb;
 	ftime(&tb);
 	return (int64_t)tb.time * 1000 + tb.millitm;
+#endif
 }
 
 #endif

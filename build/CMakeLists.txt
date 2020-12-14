@@ -68,6 +68,7 @@ set_property(
 	APPEND
 	PROPERTY COMPILE_DEFINITIONS
 	LUA_LIB
+    _CRT_SECURE_NO_WARNINGS
 )
 list(APPEND THIRDPART_INC  ai/xiangqi)
 set (THIRDPART_SRC ${THIRDPART_SRC} ${AI_XIANGQI_SRC})
@@ -145,6 +146,7 @@ set_property(
 	APPEND
 	PROPERTY COMPILE_DEFINITIONS
 	LUA_LIB
+    _CRT_SECURE_NO_WARNINGS
 )
 list(APPEND THIRDPART_INC  ai/weiqi)
 set (THIRDPART_SRC ${THIRDPART_SRC} ${AI_WEIQI_SRC})
@@ -297,7 +299,7 @@ else ( )
 endif ( )
 
 if ( WIN32 AND NOT CYGWIN )
-    target_compile_definitions (xlua PRIVATE LUA_BUILD_AS_DLL)
+    target_compile_definitions (xlua PRIVATE LUA_BUILD_AS_DLL /wd4146)
 endif ( )
 
 if (GC64 AND USING_LUAJIT)

@@ -24,7 +24,7 @@ endif ()
 option ( UINT_ESPECIALLY "using custom ulong" OFF )
 option ( USING_LUAJIT "using luajit" OFF )
 option ( GC64 "using gc64" OFF )
-option ( LUAC_COMPATIBLE_FORMAT "compatible format" OFF )
+option ( LUAC_COMPATIBLE_FORMAT "compatible format" ON )
 
 find_path(XLUA_PROJECT_DIR NAMES SConstruct
     PATHS 

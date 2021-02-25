@@ -91,6 +91,15 @@ static int PosRepValue(lua_State* L)
 	return 1;
 }
 
+// 局面评分
+static int PosEvaluate(lua_State* L)
+{
+	int vlAlpha = luaL_checkinteger(L, 1);
+	int vlBeta = luaL_checkinteger(L, 1);
+	lua_pushinteger(L, Search.pos.Evaluate(vlAlpha, vlBeta));
+	return 1;
+}
+
 // 判断是已被将死
 static int PosIsMate(lua_State* L)
 {
@@ -315,6 +324,8 @@ static const luaL_Reg methods[] =
 	{ "PosGetMvResult", PosGetMvResult },
 	{ "PosToFen", PosToFen },
 	{ "PosLegalMove", PosLegalMove },
+	{ "PosEvaluate", PosEvaluate },
+
 
 	{ "XqSearchMain", XqSearchMain },
 	{ "XqInitAI_0", XqInitAI_0 },

@@ -107,6 +107,18 @@ static int PosMaterial(lua_State* L)
 	return 1;
 }
 
+// 局面评分
+static int PosValue(lua_State* L)
+{
+	int n = luaL_checkinteger(L, 1);
+	if (n == 0){
+		lua_pushinteger(L, Search.pos.vlWhite);
+	}else{
+		lua_pushinteger(L, Search.pos.vlBlack);
+	}
+	return 1;
+}
+
 
 // 判断是已被将死
 static int PosIsMate(lua_State* L)

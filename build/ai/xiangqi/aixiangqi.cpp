@@ -100,6 +100,14 @@ static int PosEvaluate(lua_State* L)
 	return 1;
 }
 
+// 子力平衡，包括先行权因素
+static int PosMaterial(lua_State* L)
+{
+	lua_pushinteger(L, Search.pos.Material());
+	return 1;
+}
+
+
 // 判断是已被将死
 static int PosIsMate(lua_State* L)
 {
@@ -325,6 +333,8 @@ static const luaL_Reg methods[] =
 	{ "PosToFen", PosToFen },
 	{ "PosLegalMove", PosLegalMove },
 	{ "PosEvaluate", PosEvaluate },
+	{ "PosMaterial", PosMaterial },
+
 
 
 	{ "XqSearchMain", XqSearchMain },

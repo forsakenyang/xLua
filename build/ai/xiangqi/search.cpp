@@ -909,46 +909,11 @@ void SearchMain(int nDepth) {
     }
   }
 
-//#ifdef CCHESS_A3800
   Search.mvResult = Search2.wmvPvLine[0];
-//#else
   // 12. 输出最佳着法及其最佳应对(作为后台思考的猜测着法)
-  if (Search2.wmvPvLine[0] != 0)
-  {
-	  //PopPvLine();
-	  dwMoveStr = MOVE_COORD(Search2.wmvPvLine[0]);
-	  //printf("bestmove %.4s", (const char *)&dwMoveStr);
-	  if (Search2.wmvPvLine[1] != 0)
-	  {
-		  dwMoveStr = MOVE_COORD(Search2.wmvPvLine[1]);
-		  // printf(" ponder %.4s", (const char *)&dwMoveStr);
-	  }
-
+  if (Search2.wmvPvLine[0] != 0) {
+    PopPvLine();
   }
-
-  Search.mvResult = Search2.wmvPvLine[0];
- //   // 13. 判断是否认输或提和，但是经过唯一着法检验的不适合认输或提和(因为搜索深度不够)
- //   if (!bUnique) 
-	//{
- //     if (vlLast > -WIN_VALUE && vlLast < -RESIGN_VALUE) 
-	//  {
- //       printf(" resign");
- //     } 
-//		 else if (Search.bDraw && !Search.pos.NullSafe() && vlLast < DRAW_OFFER_VALUE * 2) 
-//		{
- //       printf(" draw");
- //     }
- //   }
- // } 
- // else 
- // {
- //   printf("nobestmove");
- // }
-
-	 
-  //printf("\n");
-  //fflush(stdout);
-//#endif
 }
 
 void  SetKillThredMsg(bool IsKill)

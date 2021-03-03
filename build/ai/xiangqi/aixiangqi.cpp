@@ -12,9 +12,8 @@
 
 #include "i64lib.h"
 
-#include "eleeye/search.h"
-#include "eleeye/hash.h"
-
+#include "search.h"
+#include "hashes.h"
 
 const int INTERRUPT_COUNT = 4096; // 搜索若干结点后调用中断
 

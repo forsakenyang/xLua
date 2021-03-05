@@ -57,12 +57,14 @@ set (THIRDPART_SRC ${THIRDPART_SRC} ${RAPIDJSON_SRC})
 set (AI_XIANGQI_SRC ai/xiangqi/book.cpp 
 ai/xiangqi/evaluate.cpp
 ai/xiangqi/genmoves.cpp
-ai/xiangqi/hashes.cpp
+ai/xiangqi/hash.cpp
 ai/xiangqi/movesort.cpp
+ai/xiangqi/onyuan.cpp
 ai/xiangqi/position.cpp
 ai/xiangqi/preeval.cpp
 ai/xiangqi/pregen.cpp
 ai/xiangqi/search.cpp
+ai/xiangqi/ucci.cpp
 ai/xiangqi/aixiangqi.cpp)
 set_property(
 	SOURCE ${AI_XIANGQI_SRC}

@@ -9,6 +9,9 @@
 #include "search.h"
 #include "base.h"
 
+#include <thread>
+#include <mutex>
+#include <atomic>
 #include "onyuan.h"
 
 OnyuanStruct Onyuan;

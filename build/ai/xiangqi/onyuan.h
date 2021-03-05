@@ -1,4 +1,6 @@
 #include "position.h"
+#include <thread>
+#include <mutex>
 
 const int INTERRUPT_COUNT = 4096; // 搜索若干结点后调用中断
 const int LINE_INPUT_MAX_CHAR = 8192;
@@ -12,9 +14,6 @@ struct OnyuanStruct {
     char szCommBuffer[LINE_INPUT_MAX_CHAR];
     int nCommandReadEnd;
 
-    HANDLE mutexLine;   //互斥量
-    HANDLE mutexCommand;//互斥量
-
     bool ReadLine(char *szLineStr);         // 读取引擎的结果
     void WriteLine(const char *format, ...);
 
@@ -23,7 +22,8 @@ struct OnyuanStruct {
 
     bool CommandOut(char* szLineStr);         // ucci 读取指令
     void CommandIn(const char* szCommandStr); // 给ucci引擎发送指令
-};
+}; 
+
 
 
 extern OnyuanStruct Onyuan;

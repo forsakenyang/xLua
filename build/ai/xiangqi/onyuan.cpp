@@ -19,7 +19,7 @@ inline void PrintLn(const char *sz) {
   fflush(stdout);
 }
 
-DWORD WINAPI Run(LPVOID lpParamter) {
+static void Run() {
 	int i;
 	bool bPonderTime;
 	bPonderTime = false;
@@ -209,25 +209,40 @@ DWORD WINAPI Run(LPVOID lpParamter) {
 	DelHash();
 	PrintLn("bye");
 
-	return 0L;//表示返回的是long型的0
+	return;
 }
 
+std::mutex mutexLine;   //互斥量
+std::mutex mutexCommand;//互斥量
+std::thread onyuanThread;
+std::atomic_bool is_running;
 
 void OnyuanStruct::StartEngine() {
+	if (is_running) {
+		return;
+	}
+
 	nReadEnd = 0;
 	nCommandReadEnd = 0;
 	szBuffer[0] = '\0';
 	szCommBuffer[0] = '\0';
+	is_running = true;
+	onyuanThread = std::thread(Run);
+}
 
-	mutexLine = CreateMutex(NULL, FALSE, "mutexLine");
-	mutexCommand = CreateMutex(NULL, FALSE, "mutexCommand");
-	HANDLE hThread = CreateThread(NULL, 0, Run, NULL, 0, NULL);
-	CloseHandle(hThread);
+void OnyuanStruct::StopEngine() {
+	if (!is_running)
+	{
+		return;
+	}
+	is_running = false;
+
+	CommandIn("quit");
+	onyuanThread.join();
 }
 
 void OnyuanStruct::WriteLine(const char *format, ...) {
-	WaitForSingleObject(mutexLine, INFINITE);
-
+	mutexLine.lock();
 	va_list ap;
 	__crt_va_start(ap, format);
 	vsprintf_s(szLineStr, format, ap);
@@ -244,17 +259,16 @@ void OnyuanStruct::WriteLine(const char *format, ...) {
 	nReadEnd += nStrLen;
 	szBuffer[nReadEnd] = '\0';
 
-	ReleaseMutex(mutexLine);
+	mutexLine.unlock();
 }
 
 bool OnyuanStruct::ReadLine(char *szLineStr) {
-	WaitForSingleObject(mutexLine, INFINITE);
-
+	mutexLine.lock();
 	char* lpFeedEnd;
 	int nFeedEnd;
 	lpFeedEnd = (char*)memchr(szBuffer, '\n', nReadEnd);
 	if (lpFeedEnd == NULL) {
-		ReleaseMutex(mutexLine);
+		mutexLine.unlock();
 		return false;
 	}
 	else {
@@ -269,14 +283,14 @@ bool OnyuanStruct::ReadLine(char *szLineStr) {
 			*lpFeedEnd = '\0';
 		}
 		
-		ReleaseMutex(mutexLine);
+		mutexLine.unlock();
 		return true;
 	}
 	
 }
 
 void OnyuanStruct::CommandIn(const char* szCommandStr) {
-	WaitForSingleObject(mutexCommand, INFINITE);
+	mutexCommand.lock();
 	int nStrLen;
 	nStrLen = strlen(szCommandStr);
 
@@ -289,16 +303,16 @@ void OnyuanStruct::CommandIn(const char* szCommandStr) {
 	szCommBuffer[nCommandReadEnd] = '\n';
 	nCommandReadEnd++;
 	szCommBuffer[nCommandReadEnd] = '\0';
-	ReleaseMutex(mutexCommand);
+	mutexCommand.unlock();
 }
 
 bool OnyuanStruct::CommandOut(char* szLineStr) {
-	WaitForSingleObject(mutexCommand, INFINITE);
+	mutexCommand.lock();
 	char* lpFeedEnd;
 	int nFeedEnd;
 	lpFeedEnd = (char*)memchr(szCommBuffer, '\n', nCommandReadEnd);
 	if (lpFeedEnd == NULL) {
-		ReleaseMutex(mutexCommand);
+		mutexCommand.unlock();
 		return false;
 	}
 	else {
@@ -312,12 +326,8 @@ bool OnyuanStruct::CommandOut(char* szLineStr) {
 		if (lpFeedEnd != NULL) {
 			*lpFeedEnd = '\0';
 		}
-		ReleaseMutex(mutexCommand);
+		mutexCommand.unlock();
 		return true;
 	}
 	
-}
-
-void OnyuanStruct::StopEngine() {
-	CommandIn("quit");
 }

@@ -326,38 +326,14 @@ static int XqTryAsyncSearch(lua_State* L)
 }
 
 // -------------------- 新加 ------------------------
-static int ucci_init(lua_State* L){
 
-	//先释放
-	DelHash();
-
-	// LocatePath(Search.szBookFile, "BOOK.DAT");
-
-	PreGenInit();
-	NewHash(24); // 24=16MB, 25=32MB, 26=64MB, ...
-	Search.pos.FromFen(cszStartFen);
-	Search.pos.nDistance = 0;
-	Search.pos.PreEvaluate();
-	Search.nBanMoves = 0;
-	Search.bQuit = Search.bBatch = Search.bDebug = false;
-	Search.bUseHash = Search.bUseBook = Search.bNullMove = Search.bKnowledge = true;
-	Search.bIdle = false;
-	Search.nCountMask = INTERRUPT_COUNT - 1;
-	Search.nRandomMask = 0;
-	Search.rc4Random.InitRand();
-	Search.nRandomMask = 3;
-
+static int start_engine(lua_State* L){
+	Onyuan.StartEngine();
 	return 1;
 }
 
 static int stop_engine(lua_State* L){
 	Onyuan.StopEngine();
-	return 1;
-}
-	
-
-static int start_engine(lua_State* L){
-	Onyuan.StartEngine();
 	return 1;
 }
 
@@ -372,7 +348,6 @@ static int ucci_output(lua_State* L){
 }
 
 static int ucci_input(lua_State* L){
-
 	size_t len = 0;
 	const char* szLineStr = luaL_checklstring(L, 1, &len);
 	Onyuan.CommandIn(szLineStr);
@@ -416,7 +391,11 @@ static const luaL_Reg methods[] =
 	{ "XqAsyncSearch", XqAsyncSearch },
 	{ "XqTryAsyncSearch", XqTryAsyncSearch },
 
-	{ "ucci_read_line", ucci_readline },
+	{ "start_engine", start_engine },
+	{ "stop_engine", stop_engine },
+	{ "ucci_output", ucci_output },
+	{ "ucci_input", ucci_input },
+
 
 	{ NULL, NULL }
 };

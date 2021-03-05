@@ -18,7 +18,9 @@ Lesser General Public License for more details.
 You should have received a copy of the GNU Lesser General Public
 License along with this library; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
-*/#ifndef PREEVAL_H
+*/
+
+#ifndef PREEVAL_H
 #define PREEVAL_H
 
 // 扩展的局面预评价结构

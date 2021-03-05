@@ -18,20 +18,23 @@ Lesser General Public License for more details.
 You should have received a copy of the GNU Lesser General Public
 License along with this library; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
-*///#ifndef CCHESS_A3800
+*/
 
-#include <stdio.h>
-//#endif
-//#include "../base/base2.h"
+#ifndef CCHESS_A3800
+  #include <stdio.h>
+#endif
+#include "base2.h"
 #include "pregen.h"
 #include "position.h"
-#include "hashes.h"
-#include "book.h"
+#include "hash.h"
+#ifndef CCHESS_A3800
+  #include "ucci.h"
+  #include "book.h"
+#endif
 #include "movesort.h"
-#include "search.h"       
+#include "search.h"
 
-int g_testcount = 0;
-
+#include "onyuan.h"
 
 const int IID_DEPTH = 2;         // 内部迭代加深的深度
 const int SMP_DEPTH = 6;         // 并行搜索的深度
@@ -41,7 +44,6 @@ const int DROPDOWN_VALUE = 20;   // 落后的分值
 const int RESIGN_VALUE = 300;    // 认输的分值
 const int DRAW_OFFER_VALUE = 40; // 提和的分值
 
-bool  g_bIsKillThred = false;//是否直接返回，不再继续查找(ai某种情况下存在耗时较长)
 SearchStruct Search;
 
 // 搜索信息，是封装在模块内部的
@@ -57,98 +59,97 @@ static struct {
   MoveSortStruct MoveSort;            // 根结点的着法序列
 } Search2;
 
-//#ifndef CCHESS_A3800
+#ifndef CCHESS_A3800
 
-//void BuildPos(PositionStruct &pos, const UcciCommStruct &UcciComm) {
-//  int i, mv;
-//  pos.FromFen(UcciComm.szFenStr);
-//  for (i = 0; i < UcciComm.nMoveNum; i ++) {
-//    mv = COORD_MOVE(UcciComm.lpdwMovesCoord[i]);
-//    if (mv == 0) {
-//      break;
-//    }
-//    if (pos.LegalMove(mv) && pos.MakeMove(mv) && pos.LastMove().CptDrw > 0) {
-//      // 始终让pos.nMoveNum反映没吃子的步数
-//      pos.SetIrrev();
-//    }
-//  }
-//}
+void BuildPos(PositionStruct &pos, const UcciCommStruct &UcciComm) {
+  int i, mv;
+  pos.FromFen(UcciComm.szFenStr);
+  for (i = 0; i < UcciComm.nMoveNum; i ++) {
+    mv = COORD_MOVE(UcciComm.lpdwMovesCoord[i]);
+    if (mv == 0) {
+      break;
+    }
+    if (pos.LegalMove(mv) && pos.MakeMove(mv) && pos.LastMove().CptDrw > 0) {
+      // 始终让pos.nMoveNum反映没吃子的步数
+      pos.SetIrrev();
+    }
+  }
+}
 
-//#endif
+#endif
 
 // 中断例程
 static bool Interrupt(void) {
-	if (Search.bIdle) {
-	//	Idle();
-	}
-	if (Search.nGoMode == GO_MODE_NODES) {
-		if (!Search.bPonder && Search2.nAllNodes > Search.nNodes * 4) {
-			Search2.bStop = true;
-			return true;
-		}
-	}
-	else if (Search.nGoMode == GO_MODE_TIMER) {
-		if (!Search.bPonder && (int)(GetTime() - Search2.llTime) > Search.nMaxTimer) {
-			Search2.bStop = true;
-			return true;
-		}
-	}
-	if (Search.bBatch) {
-		return false;
-	}
-	//
-	//#ifdef CCHESS_A3800
-	return false;
-	//#else
-}
-//  UcciCommStruct UcciComm;
-//  PositionStruct posProbe;
-//  // 如果不是批处理模式，那么先调用UCCI解释程序，再判断是否中止
-//  switch (BusyLine(UcciComm, Search.bDebug)) {
-//  case UCCI_COMM_ISREADY:
-//    // "isready"指令实际上没有意义
-//    printf("readyok\n");
-//    fflush(stdout);
-//    return false;
-//  case UCCI_COMM_PONDERHIT:
-//    // "ponderhit"指令启动计时功能，如果"SearchMain()"例程认为已经搜索了足够的时间， 那么发出中止信号
-//    if (Search2.bPonderStop) {
-//      Search2.bStop = true;
-//      return true;
-//    } else {
-//      Search.bPonder = false;
-//      return false;
-//    }
-//  case UCCI_COMM_PONDERHIT_DRAW:
-//    // "ponderhit draw"指令启动计时功能，并设置提和标志
-//    Search.bDraw = true;
-//    if (Search2.bPonderStop) {
-//      Search2.bStop = true;
-//      return true;
-//    } else {
-//      Search.bPonder = false;
-//      return false;
-//    }
-//  case UCCI_COMM_STOP:
-//    // "stop"指令发送中止信号
-//    Search2.bStop = true;
-//    return true;
-//  case UCCI_COMM_PROBE:
-//    // "probe"指令输出Hash表信息
-//    BuildPos(posProbe, UcciComm);
-//    PopHash(posProbe);
-//    return false;
-//  case UCCI_COMM_QUIT:
-//    // "quit"指令发送退出信号
-//    Search.bQuit = Search2.bStop = true;
-//    return true;
-//  default:
-//    return false;
-//  }
-//#endif
-//}
+  if (Search.bIdle) {
+    Idle();
+  }
+  if (Search.nGoMode == GO_MODE_NODES) {
+    if (!Search.bPonder && Search2.nAllNodes > Search.nNodes * 4) {
+      Search2.bStop = true;
+      return true;
+    }
+  } else if (Search.nGoMode == GO_MODE_TIMER) {
+    if (!Search.bPonder && (int) (GetTime() - Search2.llTime) > Search.nMaxTimer) {
+      Search2.bStop = true;
+      return true;
+    }
+  }
+  if (Search.bBatch) {
+    return false;
+  }
+  return false;
 
-//#ifndef CCHESS_A3800
+// #ifdef CCHESS_A3800
+//   return false;
+// #else
+//   UcciCommStruct UcciComm;
+//   PositionStruct posProbe;
+//   // 如果不是批处理模式，那么先调用UCCI解释程序，再判断是否中止
+//   switch (BusyLine(UcciComm, Search.bDebug)) {
+//   case UCCI_COMM_ISREADY:
+//     // "isready"指令实际上没有意义
+//     printf("readyok\n");
+//     fflush(stdout);
+//     return false;
+//   case UCCI_COMM_PONDERHIT:
+//     // "ponderhit"指令启动计时功能，如果"SearchMain()"例程认为已经搜索了足够的时间， 那么发出中止信号
+//     if (Search2.bPonderStop) {
+//       Search2.bStop = true;
+//       return true;
+//     } else {
+//       Search.bPonder = false;
+//       return false;
+//     }
+//   case UCCI_COMM_PONDERHIT_DRAW:
+//     // "ponderhit draw"指令启动计时功能，并设置提和标志
+//     Search.bDraw = true;
+//     if (Search2.bPonderStop) {
+//       Search2.bStop = true;
+//       return true;
+//     } else {
+//       Search.bPonder = false;
+//       return false;
+//     }
+//   case UCCI_COMM_STOP:
+//     // "stop"指令发送中止信号
+//     Search2.bStop = true;
+//     return true;
+//   case UCCI_COMM_PROBE:
+//     // "probe"指令输出Hash表信息
+//     BuildPos(posProbe, UcciComm);
+//     PopHash(posProbe);
+//     return false;
+//   case UCCI_COMM_QUIT:
+//     // "quit"指令发送退出信号
+//     Search.bQuit = Search2.bStop = true;
+//     return true;
+//   default:
+//     return false;
+//   }
+// #endif
+}
+
+#ifndef CCHESS_A3800
 
 // 输出主要变例
 static void PopPvLine(int nDepth = 0, int vl = 0) {
@@ -162,7 +163,8 @@ static void PopPvLine(int nDepth = 0, int vl = 0) {
   }
   // 输出时间和搜索结点数
   printf("info time %d nodes %d\n", (int) (GetTime() - Search2.llTime), Search2.nAllNodes);
-  //fflush(stdout);
+  Onyuan.WriteLine("info time %d nodes %d\n", (int) (GetTime() - Search2.llTime), Search2.nAllNodes);
+  fflush(stdout);
   if (nDepth == 0) {
     // 如果是搜索结束后的输出，并且已经输出过，那么不必再输出
     if (Search2.nPopDepth == 0) {
@@ -175,18 +177,22 @@ static void PopPvLine(int nDepth = 0, int vl = 0) {
     // 达到需要输出的深度，那么以后不必再输出
     Search2.nPopDepth = Search2.vlPopValue = 0;
   }
-  //printf("info depth %d score %d pv", nDepth, vl);
+  printf("info depth %d score %d pv", nDepth, vl);
+  Onyuan.WriteLine("info depth %d score %d pv", nDepth, vl);
+
   lpwmv = Search2.wmvPvLine;
   while (*lpwmv != 0) {
     dwMoveStr = MOVE_COORD(*lpwmv);
-   // printf(" %.4s", (const char *) &dwMoveStr);
+    printf(" %.4s", (const char *) &dwMoveStr);
+    Onyuan.WriteLine(" %.4s", (const char *) &dwMoveStr);
     lpwmv ++;
   }
-  //printf("\n");
-  //fflush(stdout);
+  printf("\n");
+  Onyuan.WriteLine("\n");
+  fflush(stdout);
 }
 
-//#endif
+#endif
 
 // 无害裁剪
 static int HarmlessPruning(const PositionStruct &pos, int vlBeta) {
@@ -215,8 +221,6 @@ static int HarmlessPruning(const PositionStruct &pos, int vlBeta) {
 // 调整型局面评价函数
 inline int Evaluate(const PositionStruct &pos, int vlAlpha, int vlBeta) {
   int vl;
-
-
   vl = Search.bKnowledge ? pos.Evaluate(vlAlpha, vlBeta) : pos.Material();
   return vl == pos.DrawValue() ? vl - 1 : vl;
 }
@@ -244,19 +248,11 @@ static int SearchQuiesc(PositionStruct &pos, int vlAlpha, int vlBeta) {
 #endif
 
   // 4. 达到极限深度，直接返回评价值；
-  //if (pos.nDistance == LIMIT_DEPTH)
-  if (pos.nDistance >= LIMIT_DEPTH) {
+  if (pos.nDistance == LIMIT_DEPTH) {
     return Evaluate(pos, vlAlpha, vlBeta);
   }
- 
-  
-  // jjchess
-  //__ASSERT(Search.pos.nDistance < LIMIT_DEPTH);
+  __ASSERT(Search.pos.nDistance < LIMIT_DEPTH);
 
-  if (Search.pos.nDistance < LIMIT_DEPTH)
-  {
-	  int i = 0;
-  }
   // 5. 初始化；
   vlBest = -MATE_VALUE;
   bInCheck = (pos.LastMove().ChkChs > 0);
@@ -268,8 +264,8 @@ static int SearchQuiesc(PositionStruct &pos, int vlAlpha, int vlBeta) {
 
     // 7. 对于未被将军的局面，在生成着法前首先尝试空着(空着启发)，即对局面作评价；
     vl = Evaluate(pos, vlAlpha, vlBeta);
-    //jjchess __ASSERT_BOUND(1 - WIN_VALUE, vl, WIN_VALUE - 1);
-	//jjchess  __ASSERT(vl > vlBest);
+    __ASSERT_BOUND(1 - WIN_VALUE, vl, WIN_VALUE - 1);
+    __ASSERT(vl > vlBest);
     if (vl >= vlBeta) {
 #ifdef HASH_QUIESC
       RecordHashQ(pos, vl, MATE_VALUE);
@@ -277,7 +273,7 @@ static int SearchQuiesc(PositionStruct &pos, int vlAlpha, int vlBeta) {
       return vl;
     }
     vlBest = vl;
-    vlAlpha = CHESSMAX(vl, vlAlpha);
+    vlAlpha = MAX(vl, vlAlpha);
 
     // 8. 对于未被将军的局面，生成并排序所有吃子着法(MVV(LVA)启发)；
     MoveSort.InitQuiesc(pos);
@@ -285,7 +281,7 @@ static int SearchQuiesc(PositionStruct &pos, int vlAlpha, int vlBeta) {
 
   // 9. 用Alpha-Beta算法搜索这些着法；
   while ((mv = MoveSort.NextQuiesc(bInCheck)) != 0) {
-	  //jjchess  __ASSERT(bInCheck || pos.ucpcSquares[DST(mv)] > 0);
+    __ASSERT(bInCheck || pos.ucpcSquares[DST(mv)] > 0);
     if (pos.MakeMove(mv)) {
       vl = -SearchQuiesc(pos, -vlBeta, -vlAlpha);
       pos.UndoMakeMove();
@@ -299,14 +295,14 @@ static int SearchQuiesc(PositionStruct &pos, int vlAlpha, int vlBeta) {
           return vl;
         }
         vlBest = vl;
-		vlAlpha = CHESSMAX(vl, vlAlpha);
+        vlAlpha = MAX(vl, vlAlpha);
       }
     }
   }
 
   // 10. 返回分值。
   if (vlBest == -MATE_VALUE) {
-	  //jjchess  __ASSERT(pos.IsMate());
+    __ASSERT(pos.IsMate());
     return pos.nDistance - MATE_VALUE;
   } else {
 #ifdef HASH_QUIESC
@@ -318,18 +314,19 @@ static int SearchQuiesc(PositionStruct &pos, int vlAlpha, int vlBeta) {
   }
 }
 
-//#ifndef CCHESS_A3800
+#ifndef CCHESS_A3800
 
 // UCCI支持 - 输出叶子结点的局面信息
 void PopLeaf(PositionStruct &pos) {
   int vl;
   Search2.nAllNodes = 0;
   vl = SearchQuiesc(pos, -MATE_VALUE, MATE_VALUE);
- // printf("pophash lowerbound %d depth 0 upperbound %d depth 0\n", vl, vl);
-  //fflush(stdout);
+  printf("pophash lowerbound %d depth 0 upperbound %d depth 0\n", vl, vl);
+  Onyuan.WriteLine("pophash lowerbound %d depth 0 upperbound %d depth 0\n", vl, vl);
+  fflush(stdout);
 }
 
-//#endif
+#endif
 
 const bool NO_NULL = true; // "SearchCut()"的参数，是否禁止空着裁剪
 
@@ -342,7 +339,7 @@ static int SearchCut(int vlBeta, int nDepth, bool bNoNull = false) {
 
   // 1. 在叶子结点处调用静态搜索；
   if (nDepth <= 0) {
-	  //jjchess  __ASSERT(nDepth >= -NULL_DEPTH);
+    __ASSERT(nDepth >= -NULL_DEPTH);
     return SearchQuiesc(Search.pos, vlBeta - 1, vlBeta);
   }
   Search2.nAllNodes ++;
@@ -363,14 +360,12 @@ static int SearchCut(int vlBeta, int nDepth, bool bNoNull = false) {
   if (Search.pos.nDistance == LIMIT_DEPTH) {
     return Evaluate(Search.pos, vlBeta - 1, vlBeta);
   }
-  //jjchess
-  //__ASSERT(Search.pos.nDistance < LIMIT_DEPTH);
+  __ASSERT(Search.pos.nDistance < LIMIT_DEPTH);
 
   // 5. 中断调用；
   Search2.nMainNodes ++;
   vlBest = -MATE_VALUE;
   if ((Search2.nMainNodes & Search.nCountMask) == 0 && Interrupt()) {
-	//  if ((Search2.nMainNodes & Search.nCountMask) == 0 ) {
     return vlBest;
   }
 
@@ -386,11 +381,11 @@ static int SearchCut(int vlBeta, int nDepth, bool bNoNull = false) {
     if (vl >= vlBeta) {
       if (Search.pos.NullSafe()) {
         // a. 如果空着裁剪不带检验，那么记录深度至少为(NULL_DEPTH + 1)；
-		  RecordHash(Search.pos, HASH_BETA, vl, CHESSMAX(nDepth, NULL_DEPTH + 1), 0);
+        RecordHash(Search.pos, HASH_BETA, vl, MAX(nDepth, NULL_DEPTH + 1), 0);
         return vl;
       } else if (SearchCut(vlBeta, nDepth - NULL_DEPTH, NO_NULL) >= vlBeta) {
         // b. 如果空着裁剪带检验，那么记录深度至少为(NULL_DEPTH)；
-		  RecordHash(Search.pos, HASH_BETA, vl, CHESSMAX(nDepth, NULL_DEPTH), 0);
+        RecordHash(Search.pos, HASH_BETA, vl, MAX(nDepth, NULL_DEPTH), 0);
         return vl;
       }
     }
@@ -436,7 +431,7 @@ static int SearchCut(int vlBeta, int nDepth, bool bNoNull = false) {
 
   // 12. 不截断措施。
   if (vlBest == -MATE_VALUE) {
-	  //jjchess  __ASSERT(Search.pos.IsMate());
+    __ASSERT(Search.pos.IsMate());
     return Search.pos.nDistance - MATE_VALUE;
   } else {
     RecordHash(Search.pos, HASH_ALPHA, vlBest, nDepth, mvEvade);
@@ -471,12 +466,10 @@ static int SearchPV(int vlAlpha, int vlBeta, int nDepth, uint16_t *lpwmvPvLine) 
   uint16_t wmvPvLine[LIMIT_DEPTH];
   // 完全搜索例程包括以下几个步骤：
 
-   g_testcount++;
-
   // 1. 在叶子结点处调用静态搜索；
   *lpwmvPvLine = 0;
   if (nDepth <= 0) {
-	  //jjchess  __ASSERT(nDepth >= -NULL_DEPTH);
+    __ASSERT(nDepth >= -NULL_DEPTH);
     return SearchQuiesc(Search.pos, vlAlpha, vlBeta);
   }
   Search2.nAllNodes ++;
@@ -495,26 +488,22 @@ static int SearchPV(int vlAlpha, int vlBeta, int nDepth, uint16_t *lpwmvPvLine) 
   }
 
   // 4. 达到极限深度，直接返回评价值；
-  //jjchess
- // __ASSERT(Search.pos.nDistance > 0);
+  __ASSERT(Search.pos.nDistance > 0);
   if (Search.pos.nDistance == LIMIT_DEPTH) {
     return Evaluate(Search.pos, vlAlpha, vlBeta);
   }
-  //jjchess
-  //__ASSERT(Search.pos.nDistance < LIMIT_DEPTH);
+  __ASSERT(Search.pos.nDistance < LIMIT_DEPTH);
 
   // 5. 中断调用；
   Search2.nMainNodes ++;
   vlBest = -MATE_VALUE;
-  //if ((Search2.nMainNodes & Search.nCountMask) == 0 && Interrupt()) {
-  if ((Search2.nMainNodes & Search.nCountMask) == 0 ) {
+  if ((Search2.nMainNodes & Search.nCountMask) == 0 && Interrupt()) {
     return vlBest;
   }
 
   // 6. 内部迭代加深启发；
   if (nDepth > IID_DEPTH && mvHash == 0) {
-   // __ASSERT(nDepth / 2 <= nDepth - IID_DEPTH);
-	 // MessageBox("nDepth / 2 <= nDepth - IID_DEPTH", "");
+    __ASSERT(nDepth / 2 <= nDepth - IID_DEPTH);
     vl = SearchPV(vlAlpha, vlBeta, nDepth / 2, wmvPvLine);
     if (vl <= vlAlpha) {
       vl = SearchPV(-MATE_VALUE, vlBeta, nDepth / 2, wmvPvLine);
@@ -538,15 +527,8 @@ static int SearchPV(int vlAlpha, int vlBeta, int nDepth, uint16_t *lpwmvPvLine) 
   }
 
   // 8. 按照"MoveSortStruct::NextFull()"例程的着法顺序逐一搜索；
-  while ((mv = MoveSort.NextFull(Search.pos)) != 0) {    
-       g_testcount++;
-       if(g_testcount==35)
-       {
-           int a;
-           a = 10;
-       }
+  while ((mv = MoveSort.NextFull(Search.pos)) != 0) {
     if (Search.pos.MakeMove(mv)) {
-       
 
       // 9. 尝试选择性延伸；
       nNewDepth = (Search.pos.LastMove().ChkChs > 0 || mvEvade != 0 ? nDepth : nDepth - 1);
@@ -585,18 +567,11 @@ static int SearchPV(int vlAlpha, int vlBeta, int nDepth, uint16_t *lpwmvPvLine) 
 
   // 12. 更新置换表、历史表和杀手着法表。
   if (vlBest == -MATE_VALUE) {
-    //__ASSERT(Search.pos.IsMate());
+    __ASSERT(Search.pos.IsMate());
     return Search.pos.nDistance - MATE_VALUE;
   } else {
     RecordHash(Search.pos, nHashFlag, vlBest, nDepth, mvEvade == 0 ? mvBest : mvEvade);
     if (mvBest != 0 && !MoveSort.GoodCap(Search.pos, mvBest)) {
-        //越界了        66 
-        if(Search.pos.nDistance>=64)
-        {
-            int a;
-            a = 10;
-            Search.pos.nDistance = 63;
-        }
       SetBestMove(mvBest, nDepth, Search2.wmvKiller[Search.pos.nDistance]);
     }
     return vlBest;
@@ -614,9 +589,9 @@ static int SearchPV(int vlAlpha, int vlBeta, int nDepth, uint16_t *lpwmvPvLine) 
  */
 static int SearchRoot(int nDepth) {
   int nNewDepth, vlBest, vl, mv, nCurrMove;
-//#ifndef CCHESS_A3800
+#ifndef CCHESS_A3800
   uint32_t dwMoveStr;
-//#endif
+#endif
   uint16_t wmvPvLine[LIMIT_DEPTH];
   // 根结点搜索例程包括以下几个步骤：
 
@@ -626,52 +601,35 @@ static int SearchRoot(int nDepth) {
 
   // 2. 逐一搜索每个着法(要过滤禁止着法)
   nCurrMove = 0;
-
-  if(nDepth == 9)
-  {
-      g_testcount = 0;
-  }
-  
-
-  //return 100009;
-
   while ((mv = Search2.MoveSort.NextRoot()) != 0) {
-      g_testcount++;
     if (Search.pos.MakeMove(mv)) {
-//#ifndef CCHESS_A3800
+#ifndef CCHESS_A3800
       if (Search2.bPopCurrMove || Search.bDebug) {
         dwMoveStr = MOVE_COORD(mv);
         nCurrMove ++;
-
-        //printf("info currmove %.4s currmovenumber %d\n", (const char *) &dwMoveStr, nCurrMove);
-       // fflush(stdout);
+        printf("info currmove %.4s currmovenumber %d\n", (const char *) &dwMoveStr, nCurrMove);
+        Onyuan.WriteLine("info currmove %.4s currmovenumber %d\n", (const char *) &dwMoveStr, nCurrMove);
+        fflush(stdout);
       }
-//#endif
+#endif
 
       // 3. 尝试选择性延伸(只考虑将军延伸)
       nNewDepth = (Search.pos.LastMove().ChkChs > 0 ? nDepth : nDepth - 1);
 
       // 4. 主要变例搜索
-      if (vlBest == -MATE_VALUE) 
-	  {
+      if (vlBest == -MATE_VALUE) {
         vl = -SearchPV(-MATE_VALUE, MATE_VALUE, nNewDepth, wmvPvLine);
-       // __ASSERT(vl > vlBest);
-      }
-	  else 
-	  {
+        __ASSERT(vl > vlBest);
+      } else {
         vl = -SearchCut(-vlBest, nNewDepth);
-        if (vl > vlBest) 
-		{
-			// 这里不需要" && vl < MATE_VALUE"了
+        if (vl > vlBest) { // 这里不需要" && vl < MATE_VALUE"了
           vl = -SearchPV(-MATE_VALUE, -vlBest, nNewDepth, wmvPvLine);
         }
       }
-
       Search.pos.UndoMakeMove();
       if (Search2.bStop) {
         return vlBest;
       }
-
 
       // 5. Alpha-Beta边界判定("vlBest"代替了"SearchPV()"中的"vlAlpha")
       if (vl > vlBest) {
@@ -680,13 +638,11 @@ static int SearchRoot(int nDepth) {
         Search2.nUnchanged = (vlBest == -MATE_VALUE ? Search2.nUnchanged + 1 : 0);
         vlBest = vl;
 
-
         // 7. 搜索到最佳着法时记录主要变例
         AppendPvLine(Search2.wmvPvLine, mv, wmvPvLine);
-//#ifndef CCHESS_A3800
+#ifndef CCHESS_A3800
         PopPvLine(nDepth, vl);
-//#endif
-
+#endif
 
         // 8. 如果要考虑随机性，则Alpha值要作随机浮动，但已搜索到杀棋时不作随机浮动
         if (vlBest > -WIN_VALUE && vlBest < WIN_VALUE) {
@@ -694,12 +650,6 @@ static int SearchRoot(int nDepth) {
               (Search.rc4Random.NextLong() & Search.nRandomMask);
           vlBest = (vlBest == Search.pos.DrawValue() ? vlBest - 1 : vlBest);
         }
-		if (Search2.MoveSort.nMoveNum >= 128)
-		{
-			int a;
-			a = 10;
-			return 100009;
-		}
 
         // 9. 更新根结点着法列表
         Search2.MoveSort.UpdateRoot(mv);
@@ -713,7 +663,7 @@ static int SearchRoot(int nDepth) {
 // 其原理是把找到的最佳着法设成禁止着法，然后以(-WIN_VALUE, 1 - WIN_VALUE)的窗口重新搜索，
 // 如果低出边界则说明其他着法都将被杀。
 static bool SearchUnique(int vlBeta, int nDepth) {
-	int vl = 0, mv = 0;
+  int vl, mv;
   Search2.MoveSort.ResetRoot(ROOT_UNIQUE);
   // 跳过第一个着法
   while ((mv = Search2.MoveSort.NextRoot()) != 0) {
@@ -733,26 +683,26 @@ void SearchMain(int nDepth) {
   int i, vl, vlLast, nDraw;
   int nCurrTimer, nLimitTimer, nLimitNodes;
   bool bUnique;
-//#ifndef CCHESS_A3800
+#ifndef CCHESS_A3800
   int nBookMoves;
   uint32_t dwMoveStr;
   BookStruct bks[MAX_GEN_MOVES];
-//#endif
+#endif
   // 主搜索例程包括以下几个步骤：
 
   // 1. 遇到和棋则直接返回
   if (Search.pos.IsDraw() || Search.pos.RepStatus(3) > 0) {
-//#ifndef CCHESS_A3800
-//    printf("nobestmove\n");
-//    fflush(stdout);
-//#endif
+#ifndef CCHESS_A3800
+    printf("nobestmove\n");
+    Onyuan.WriteLine("nobestmove\n");
+    fflush(stdout);
+#endif
     return;    
   }
 
-//#ifndef CCHESS_A3800
+#ifndef CCHESS_A3800
   // 2. 从开局库中搜索着法
-  if (Search.bUseBook) 
-  {
+  if (Search.bUseBook) {
     // a. 获取开局库中的所有走法
     nBookMoves = GetBookMoves(Search.pos, Search.szBookFile, bks);
     if (nBookMoves > 0) {
@@ -760,8 +710,9 @@ void SearchMain(int nDepth) {
       for (i = 0; i < nBookMoves; i ++) {
         vl += bks[i].wvl;
         dwMoveStr = MOVE_COORD(bks[i].wmv);
-       // printf("info depth 0 score %d pv %.4s\n", bks[i].wvl, (const char *) &dwMoveStr);
-       // fflush(stdout);
+        printf("info depth 0 score %d pv %.4s\n", bks[i].wvl, (const char *) &dwMoveStr);
+        Onyuan.WriteLine("info depth 0 score %d pv %.4s\n", bks[i].wvl, (const char *) &dwMoveStr);
+        fflush(stdout);
       }
       // b. 根据权重随机选择一个走法
       vl = Search.rc4Random.NextLong() % (uint32_t) vl;
@@ -771,42 +722,42 @@ void SearchMain(int nDepth) {
           break;
         }
       }
-     // __ASSERT(vl < 0);
-     // __ASSERT(i < nBookMoves);
-
+      __ASSERT(vl < 0);
+      __ASSERT(i < nBookMoves);
       // c. 如果开局库中的着法够成循环局面，那么不走这个着法
-      //Search.pos.MakeMove(bks[i].wmv);
-	  Search.mvResult = bks[i].wmv;
-  //    if (Search.pos.RepStatus(3) == 0) 
-	 // {
-  //      dwMoveStr = MOVE_COORD(bks[i].wmv);
-  //      printf("bestmove %.4s", (const char *) &dwMoveStr);
-  //      // d. 给出后台思考的着法(开局库中第一个即权重最大的后续着法)
-  //      nBookMoves = GetBookMoves(Search.pos, Search.szBookFile, bks);
-		//
-  //      Search.pos.UndoMakeMove();
-  //      if (nBookMoves > 0) 
-		//{
-  //        dwMoveStr = MOVE_COORD(bks[0].wmv);
-  //        printf(" ponder %.4s", (const char *) &dwMoveStr);
-  //      }
-  //      printf("\n");
-  //      fflush(stdout);
-  //      return;
-  //    }
-     // Search.pos.UndoMakeMove();
+      Search.pos.MakeMove(bks[i].wmv);
+      if (Search.pos.RepStatus(3) == 0) {
+        dwMoveStr = MOVE_COORD(bks[i].wmv);
+        printf("bestmove %.4s", (const char *) &dwMoveStr);
+        Onyuan.WriteLine("bestmove %.4s", (const char *) &dwMoveStr);
+        // d. 给出后台思考的着法(开局库中第一个即权重最大的后续着法)
+        nBookMoves = GetBookMoves(Search.pos, Search.szBookFile, bks);
+        Search.pos.UndoMakeMove();
+        if (nBookMoves > 0) {
+          dwMoveStr = MOVE_COORD(bks[0].wmv);
+          printf(" ponder %.4s", (const char *) &dwMoveStr);
+          Onyuan.WriteLine(" ponder %.4s", (const char *) &dwMoveStr);
+        }
+        printf("\n");
+        Onyuan.WriteLine("\n");
+        fflush(stdout);
+        return;
+      }
+      Search.pos.UndoMakeMove();
     }
   }
-//#endif
+#endif
 
   // 3. 如果深度为零则返回静态搜索值
   if (nDepth == 0) {
-////#ifndef CCHESS_A3800
-//    printf("info depth 0 score %d\n", SearchQuiesc(Search.pos, -MATE_VALUE, MATE_VALUE));
-//    fflush(stdout);
-//    printf("nobestmove\n");
-//    fflush(stdout);
-////#endif
+#ifndef CCHESS_A3800
+    printf("info depth 0 score %d\n", SearchQuiesc(Search.pos, -MATE_VALUE, MATE_VALUE));
+    Onyuan.WriteLine("info depth 0 score %d\n", SearchQuiesc(Search.pos, -MATE_VALUE, MATE_VALUE));
+    fflush(stdout);
+    printf("nobestmove\n");
+    Onyuan.WriteLine("nobestmove\n");
+    fflush(stdout);
+#endif
     return;
   }
 
@@ -835,31 +786,20 @@ void SearchMain(int nDepth) {
   // 6. 做迭代加深搜索
   for (i = 1; i <= nDepth; i ++) {
     // 需要输出主要变例时，第一个"info depth n"是不输出的
-//#ifndef CCHESS_A3800
-   // if (Search2.bPopPv || Search.bDebug) {
-    //  printf("info depth %d\n", i);
-     // fflush(stdout);
-   // }
-
-	  //后加
-	  if (g_bIsKillThred)
-		  return;
+#ifndef CCHESS_A3800
+    if (Search2.bPopPv || Search.bDebug) {
+      printf("info depth %d\n", i);
+      Onyuan.WriteLine("info depth %d\n", i);
+      fflush(stdout);
+    }
 
     // 7. 根据搜索的时间决定，是否需要输出主要变例和当前思考的着法
     Search2.bPopPv = (nCurrTimer > 300);
     Search2.bPopCurrMove = (nCurrTimer > 3000);
-//#endif
+#endif
 
     // 8. 搜索根结点
     vl = SearchRoot(i);
-	//log(vl);
-	//if (vl == 100009)
-	//{
-	//	Search.pos.ChangeSide();
-	//	SearchMain(3);
-	//	break;
-	//}
-
     if (Search2.bStop) {
       if (vl > -MATE_VALUE) {
         vlLast = vl; // 跳出后，vlLast会用来判断认输或投降，所以需要给定最近一个值
@@ -909,16 +849,38 @@ void SearchMain(int nDepth) {
     }
   }
 
+
+// #ifdef CCHESS_A3800
   Search.mvResult = Search2.wmvPvLine[0];
+// #else
   // 12. 输出最佳着法及其最佳应对(作为后台思考的猜测着法)
   if (Search2.wmvPvLine[0] != 0) {
     PopPvLine();
+    dwMoveStr = MOVE_COORD(Search2.wmvPvLine[0]);
+    printf("bestmove %.4s", (const char *) &dwMoveStr);
+    Onyuan.WriteLine("bestmove %.4s", (const char *) &dwMoveStr);
+    if (Search2.wmvPvLine[1] != 0) {
+      dwMoveStr = MOVE_COORD(Search2.wmvPvLine[1]);
+      printf(" ponder %.4s", (const char *) &dwMoveStr);
+      Onyuan.WriteLine(" ponder %.4s", (const char *) &dwMoveStr);
+    }
+
+    // 13. 判断是否认输或提和，但是经过唯一着法检验的不适合认输或提和(因为搜索深度不够)
+    if (!bUnique) {
+      if (vlLast > -WIN_VALUE && vlLast < -RESIGN_VALUE) {
+        printf(" resign");
+        Onyuan.WriteLine(" resign");
+      } else if (Search.bDraw && !Search.pos.NullSafe() && vlLast < DRAW_OFFER_VALUE * 2) {
+        printf(" draw");
+        Onyuan.WriteLine(" draw");
+      }
+    }
+  } else {
+    printf("nobestmove");
+    Onyuan.WriteLine("nobestmove");
   }
+  printf("\n");
+  Onyuan.WriteLine("\n");
+  fflush(stdout);
+// #endif
 }
-
-void  SetKillThredMsg(bool IsKill)
-{
-	g_bIsKillThred = IsKill;
-}
-
-

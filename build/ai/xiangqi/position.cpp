@@ -19,6 +19,7 @@ You should have received a copy of the GNU Lesser General Public
 License along with this library; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
+
 #include "base.h"
 #include "pregen.h"
 #include "position.h"
@@ -41,16 +42,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 // 起始局面的FEN串
 const char *const cszStartFen = "rnbakabnr/9/1c5c1/p1p1p1p1p/9/9/P1P1P1P1P/1C5C1/9/RNBAKABNR w";
-//const char *const cszStartFen = "rnbakabnr/9/1c5c1/p1p1p1p1p/9/9/9/9/9/3AKA3 w";
-//const char *const cszStartFen = "3aka3/9/9/9/9/9/P1P1P1P1P/1C5C1/9/RNBAKABNR w";
-//const char *const cszStartFen = "3a1kbr1/2RPa4/4b1n2/p3p3p/2c3p2/PN6P/4P1P2/3r2N2/4A2c1/2B1KA1R1 w";
-
-//const char *const cszStartFen = "3ak1C1n/2nra1P2/2R3R2/8p/4P4/9/P3P3P/2N1B4/4A4/2BAK4 w";
-
- //char * cszStartFen = "r1bk5/R1C2nPP1/b1NP1C2N/P3P4/1r2c4/9/4p4/3n4p/4pp3/3K2p2 w";
-
-
-
 
 // 棋子类型对应的棋子符号
 const char *const cszPieceBytes = "KABNRCP";
@@ -124,8 +115,8 @@ int FenPiece(int nArg) {
 void PositionStruct::AddPiece(int sq, int pc, bool bDel) {
   int pt;
 
-  //jjchess __ASSERT_SQUARE(sq);
-  //jjchess __ASSERT_PIECE(pc);
+  __ASSERT_SQUARE(sq);
+  __ASSERT_PIECE(pc);
   if (bDel) {
     this->ucpcSquares[sq] = 0;
     this->ucsqPieces[pc] = 0;
@@ -135,8 +126,8 @@ void PositionStruct::AddPiece(int sq, int pc, bool bDel) {
   }
   this->wBitRanks[RANK_Y(sq)] ^= PreGen.wBitRankMask[sq];
   this->wBitFiles[FILE_X(sq)] ^= PreGen.wBitFileMask[sq];
-  //jjchess  __ASSERT_BITRANK(this->wBitRanks[RANK_Y(sq)]);
-  //jjchess  __ASSERT_BITFILE(this->wBitRanks[FILE_X(sq)]);
+  __ASSERT_BITRANK(this->wBitRanks[RANK_Y(sq)]);
+  __ASSERT_BITFILE(this->wBitRanks[FILE_X(sq)]);
   this->dwBitPiece ^= BIT_PIECE(pc);
   pt = PIECE_TYPE(pc);
   if (pc < 32) {
@@ -153,7 +144,7 @@ void PositionStruct::AddPiece(int sq, int pc, bool bDel) {
     }
     pt += 7;
   }
-  //jjchess __ASSERT_BOUND(0, pt, 13);
+  __ASSERT_BOUND(0, pt, 13);
   this->zobr.Xor(PreGen.zobrTable[pt][sq]);
 }
 
@@ -167,9 +158,9 @@ int PositionStruct::MovePiece(int mv) {
   sqSrc = SRC(mv);
   sqDst = DST(mv);
   pcMoved = this->ucpcSquares[sqSrc];
-  //jjchess __ASSERT_SQUARE(sqSrc);
-  //jjchess __ASSERT_SQUARE(sqDst);
-  //jjchess __ASSERT_PIECE(pcMoved);
+  __ASSERT_SQUARE(sqSrc);
+  __ASSERT_SQUARE(sqDst);
+  __ASSERT_PIECE(pcMoved);
   pcCaptured = this->ucpcSquares[sqDst];
   if (pcCaptured == 0) {
 
@@ -177,11 +168,11 @@ int PositionStruct::MovePiece(int mv) {
     //    换句话说，有被吃的棋子，目标格的位行和位列就不必更新了。
     this->wBitRanks[RANK_Y(sqDst)] ^= PreGen.wBitRankMask[sqDst];
     this->wBitFiles[FILE_X(sqDst)] ^= PreGen.wBitFileMask[sqDst];
-	//jjchess  __ASSERT_BITRANK(this->wBitRanks[RANK_Y(sqDst)]);
-	//jjchess  __ASSERT_BITFILE(this->wBitRanks[FILE_X(sqDst)]);
+    __ASSERT_BITRANK(this->wBitRanks[RANK_Y(sqDst)]);
+    __ASSERT_BITFILE(this->wBitRanks[FILE_X(sqDst)]);
   } else {
 
-    //jjchess __ASSERT_PIECE(pcCaptured);
+    __ASSERT_PIECE(pcCaptured);
     // 3. 如果有被吃的棋子，那么更新棋子位，从"ucsqPieces"数组中清除被吃棋子
     //    同时更新子力价值、位行位列、Zobrist键值和校验锁
     this->ucsqPieces[pcCaptured] = 0;
@@ -193,7 +184,7 @@ int PositionStruct::MovePiece(int mv) {
       this->vlBlack -= PreEval.ucvlBlackPieces[pt][sqDst];
       pt += 7;
     }
-    //jjchess __ASSERT_BOUND(0, pt, 13);
+    __ASSERT_BOUND(0, pt, 13);
     this->zobr.Xor(PreGen.zobrTable[pt][sqDst]);
   }
 
@@ -204,8 +195,8 @@ int PositionStruct::MovePiece(int mv) {
   this->ucsqPieces[pcMoved] = sqDst;
   this->wBitRanks[RANK_Y(sqSrc)] ^= PreGen.wBitRankMask[sqSrc];
   this->wBitFiles[FILE_X(sqSrc)] ^= PreGen.wBitFileMask[sqSrc];
-  //jjchess  __ASSERT_BITRANK(this->wBitRanks[RANK_Y(sqSrc)]);
-  //jjchess __ASSERT_BITFILE(this->wBitRanks[FILE_X(sqSrc)]);
+  __ASSERT_BITRANK(this->wBitRanks[RANK_Y(sqSrc)]);
+  __ASSERT_BITFILE(this->wBitRanks[FILE_X(sqSrc)]);
   pt = PIECE_TYPE(pcMoved);
   if (pcMoved < 32) {
     lpucvl = PreEval.ucvlWhitePieces[pt];
@@ -215,7 +206,7 @@ int PositionStruct::MovePiece(int mv) {
     this->vlBlack += lpucvl[sqDst] - lpucvl[sqSrc];
     pt += 7;
   }
-  //jjchess __ASSERT_BOUND(0, pt, 13);
+  __ASSERT_BOUND(0, pt, 13);
   this->zobr.Xor(PreGen.zobrTable[pt][sqDst], PreGen.zobrTable[pt][sqSrc]);
   return pcCaptured;
 }
@@ -226,17 +217,17 @@ void PositionStruct::UndoMovePiece(int mv, int pcCaptured) {
   sqSrc = SRC(mv);
   sqDst = DST(mv);
   pcMoved = this->ucpcSquares[sqDst];
-  //jjchess __ASSERT_SQUARE(sqSrc);
-  //jjchess __ASSERT_SQUARE(sqDst);
-  //jjchess __ASSERT_PIECE(pcMoved);
+  __ASSERT_SQUARE(sqSrc);
+  __ASSERT_SQUARE(sqDst);
+  __ASSERT_PIECE(pcMoved);
   this->ucpcSquares[sqSrc] = pcMoved;
   this->ucsqPieces[pcMoved] = sqSrc;
   this->wBitRanks[RANK_Y(sqSrc)] ^= PreGen.wBitRankMask[sqSrc];
   this->wBitFiles[FILE_X(sqSrc)] ^= PreGen.wBitFileMask[sqSrc];
-  //jjchess  __ASSERT_BITRANK(this->wBitRanks[RANK_Y(sqSrc)]);
-  //jjchess __ASSERT_BITFILE(this->wBitRanks[FILE_X(sqSrc)]);
+  __ASSERT_BITRANK(this->wBitRanks[RANK_Y(sqSrc)]);
+  __ASSERT_BITFILE(this->wBitRanks[FILE_X(sqSrc)]);
   if (pcCaptured > 0) {
-    //jjchess __ASSERT_PIECE(pcCaptured);
+    __ASSERT_PIECE(pcCaptured);
     this->ucpcSquares[sqDst] = pcCaptured;
     this->ucsqPieces[pcCaptured] = sqDst;
     this->dwBitPiece ^= BIT_PIECE(pcCaptured);
@@ -244,8 +235,8 @@ void PositionStruct::UndoMovePiece(int mv, int pcCaptured) {
     this->ucpcSquares[sqDst] = 0;
     this->wBitRanks[RANK_Y(sqDst)] ^= PreGen.wBitRankMask[sqDst];
     this->wBitFiles[FILE_X(sqDst)] ^= PreGen.wBitFileMask[sqDst];
-	//jjchess  __ASSERT_BITRANK(this->wBitRanks[RANK_Y(sqDst)]);
-	//jjchess  __ASSERT_BITFILE(this->wBitRanks[FILE_X(sqDst)]);
+    __ASSERT_BITRANK(this->wBitRanks[RANK_Y(sqDst)]);
+    __ASSERT_BITFILE(this->wBitRanks[FILE_X(sqDst)]);
   }
 }
 
@@ -255,14 +246,14 @@ int PositionStruct::Promote(int sq) {
   // 升变包括以下几个步骤：
 
   // 1. 得到升变前棋子的序号；
-  //jjchess __ASSERT_SQUARE(sq);
-  //jjchess __ASSERT(CanPromote());
-  //jjchess __ASSERT(CAN_PROMOTE(sq));
+  __ASSERT_SQUARE(sq);
+  __ASSERT(CanPromote());
+  __ASSERT(CAN_PROMOTE(sq));
   pcCaptured = this->ucpcSquares[sq];
-  //jjchess __ASSERT_PIECE(pcCaptured);
+  __ASSERT_PIECE(pcCaptured);
   pcPromoted = SIDE_TAG(this->sdPlayer) + Bsf(~this->wBitPiece[this->sdPlayer] & PAWN_BITPIECE);
-  //jjchess __ASSERT_PIECE(pcPromoted);
-  //jjchess __ASSERT(this->ucsqPieces[pcPromoted] == 0);
+  __ASSERT_PIECE(pcPromoted);
+  __ASSERT(this->ucsqPieces[pcPromoted] == 0);
 
   // 2. 去掉升变前棋子，同时更新子力价值、Zobrist键值和校验锁
   this->dwBitPiece ^= BIT_PIECE(pcPromoted) ^ BIT_PIECE(pcCaptured);
@@ -274,7 +265,7 @@ int PositionStruct::Promote(int sq) {
     this->vlBlack -= PreEval.ucvlBlackPieces[pt][sq];
     pt += 7;
   }
-  //jjchess __ASSERT_BOUND(0, pt, 13);
+  __ASSERT_BOUND(0, pt, 13);
   this->zobr.Xor(PreGen.zobrTable[pt][sq]);
 
   // 3. 加上升变后棋子，同时更新子力价值、Zobrist键值和校验锁
@@ -287,7 +278,7 @@ int PositionStruct::Promote(int sq) {
     this->vlBlack += PreEval.ucvlBlackPieces[pt][sq];
     pt += 7;
   }
-  //jjchess __ASSERT_BOUND(0, pt, 13);
+  __ASSERT_BOUND(0, pt, 13);
   this->zobr.Xor(PreGen.zobrTable[pt][sq]);
   return pcCaptured;
 }
@@ -295,10 +286,10 @@ int PositionStruct::Promote(int sq) {
 // 撤消升变
 void PositionStruct::UndoPromote(int sq, int pcCaptured) {
   int pcPromoted;
-  //jjchess __ASSERT_SQUARE(sq);
-  //jjchess __ASSERT_PIECE(pcCaptured);
+  __ASSERT_SQUARE(sq);
+  __ASSERT_PIECE(pcCaptured);
   pcPromoted = this->ucpcSquares[sq];
-  //jjchess __ASSERT(PIECE_TYPE(pcPromoted) == 6);
+  __ASSERT(PIECE_TYPE(pcPromoted) == 6);
   this->ucsqPieces[pcPromoted] = 0;
   this->ucpcSquares[sq] = pcCaptured;
   this->ucsqPieces[pcCaptured] = sq;
@@ -310,16 +301,16 @@ void PositionStruct::UndoPromote(int sq, int pcCaptured) {
 // 以下是一些着法处理过程
 
 // 执行一个着法
-bool PositionStruct::MakeMove(int mv,bool bAddInstance) {
+bool PositionStruct::MakeMove(int mv) {
   int sq, pcCaptured;
   uint32_t dwOldZobristKey;
   RollbackStruct *lprbs;
 
   // 如果达到最大着法数，那么判定为非法着法
-  if (this->nMoveNum >= MAX_MOVE_NUM) {
+  if (this->nMoveNum == MAX_MOVE_NUM) {
     return false;
   }
-  //jjchess __ASSERT(this->nMoveNum < MAX_MOVE_NUM);
+  __ASSERT(this->nMoveNum < MAX_MOVE_NUM);
   // 执行一个着法要包括以下几个步骤：
 
   // 1. 保存原来的Zobrist键值
@@ -362,46 +353,29 @@ bool PositionStruct::MakeMove(int mv,bool bAddInstance) {
     if (LastMove().CptDrw == -100) {
       lprbs->mvs.CptDrw = -100;
     } else {
-		lprbs->mvs.CptDrw = CHESSMIN((int)LastMove().CptDrw, 0) - (lprbs->mvs.ChkChs > 0 || LastMove().ChkChs > 0 ? 0 : 1);
+      lprbs->mvs.CptDrw = MIN((int) LastMove().CptDrw, 0) - (lprbs->mvs.ChkChs > 0 || LastMove().ChkChs > 0 ? 0 : 1);
     }
-    //jjchess __ASSERT_BOUND(-100, lprbs->mvs.CptDrw, 0);
+    __ASSERT_BOUND(-100, lprbs->mvs.CptDrw, 0);
   } else {
     lprbs->mvs.CptDrw = pcCaptured;
-    //jjchess __ASSERT_PIECE(pcCaptured);
+    __ASSERT_PIECE(pcCaptured);
   }
   this->nMoveNum ++;
-  if(bAddInstance)
-  {
-      this->nDistance ++;
-      if(this->nDistance>=64)
-      {
-          int a;
-          a = 10;
-          this->nDistance--;
-          return false;
-      }
-  }
-
+  this->nDistance ++;
 
   return true;
 }
 
 // 撤消一个着法
-void PositionStruct::UndoMakeMove(bool bRemoveInstance) {
+void PositionStruct::UndoMakeMove(void) {
   int sq;
   RollbackStruct *lprbs;
   this->nMoveNum --;
-  if(bRemoveInstance)
-  {
-      this->nDistance --;
-      if(this->nDistance<0)
-          this->nDistance = 0;
-  }
-
+  this->nDistance --;
   lprbs = this->rbsList + this->nMoveNum;
   sq = SRC(lprbs->mvs.wmv);
   if (sq == DST(lprbs->mvs.wmv)) {
-    //jjchess __ASSERT_BOUND(ADVISOR_TYPE, PIECE_TYPE(lprbs->mvs.CptDrw), BISHOP_TYPE);
+    __ASSERT_BOUND(ADVISOR_TYPE, PIECE_TYPE(lprbs->mvs.CptDrw), BISHOP_TYPE);
     UndoPromote(sq, lprbs->mvs.CptDrw);
   } else {
     UndoMovePiece(lprbs->mvs.wmv, lprbs->mvs.CptDrw);
@@ -411,12 +385,12 @@ void PositionStruct::UndoMakeMove(bool bRemoveInstance) {
   if (this->ucRepHash[this->zobr.dwKey & REP_HASH_MASK] == this->nMoveNum) {
     this->ucRepHash[this->zobr.dwKey & REP_HASH_MASK] = 0;
   }
-  //jjchess __ASSERT(this->nMoveNum > 0);
+  __ASSERT(this->nMoveNum > 0);
 }
 
 // 执行一个空着
 void PositionStruct::NullMove(void) {
-	//jjchess __ASSERT(this->nMoveNum < MAX_MOVE_NUM);
+  __ASSERT(this->nMoveNum < MAX_MOVE_NUM);
   if (this->ucRepHash[this->zobr.dwKey & REP_HASH_MASK] == 0) {
     this->ucRepHash[this->zobr.dwKey & REP_HASH_MASK] = this->nMoveNum;
   }
@@ -424,28 +398,19 @@ void PositionStruct::NullMove(void) {
   ChangeSide();
   this->rbsList[nMoveNum].mvs.dwmv = 0; // wmv, Chk, CptDrw, ChkChs = 0
   this->nMoveNum ++;
- // __ASSERT(nMoveNum > 128);
   this->nDistance ++;
-  if(this->nDistance>=64)
-  {
-      this->nDistance--;
-      int a;
-      a = 10;
-  }
 }
 
 // 撤消一个空着
 void PositionStruct::UndoNullMove(void) {
   this->nMoveNum --;
   this->nDistance --;
-  if(this->nDistance<0)
-      this->nDistance = 0;
   this->sdPlayer = OPP_SIDE(this->sdPlayer);
   Rollback();
   if (this->ucRepHash[this->zobr.dwKey & REP_HASH_MASK] == this->nMoveNum) {
     this->ucRepHash[this->zobr.dwKey & REP_HASH_MASK] = 0;
   }
-  //jjchess  __ASSERT(this->nMoveNum > 0);
+  __ASSERT(this->nMoveNum > 0);
 }
 
 // 以上是一些着法处理过程
@@ -454,10 +419,6 @@ void PositionStruct::UndoNullMove(void) {
 
 // FEN串识别
 void PositionStruct::FromFen(const char *szFen) {
-
-
-
-
   int i, j, k;
   int pcWhite[7];
   int pcBlack[7];
@@ -496,12 +457,7 @@ void PositionStruct::FromFen(const char *szFen) {
         break;
       }
     } else if (*lpFen >= '1' && *lpFen <= '9') {
-      for (k = 0; k < (*lpFen - '0'); k ++) {
-        if (j >= FILE_RIGHT) {
-          break;
-        }
-        j ++;
-      }
+      j += (*lpFen - '0');
     } else if (*lpFen >= 'A' && *lpFen <= 'Z') {
       if (j <= FILE_RIGHT) {
         k = FenPiece(*lpFen);
@@ -594,7 +550,7 @@ void PositionStruct::Mirror(void) {
 
   // 2. 撤消所有着法
   for (i = 1; i < nMoveNumSave; i ++) {
-    UndoMakeMove(false);
+    UndoMakeMove();
   }
 
   // 3. 把所有棋子从棋盘上拿走，位置记录到"ucsqList"数组；
@@ -617,7 +573,7 @@ void PositionStruct::Mirror(void) {
   // 6. 还原镜像着法
   SetIrrev();
   for (i = 1; i < nMoveNumSave; i ++) {
-    MakeMove(MOVE_MIRROR(wmvList[i]),false);
+    MakeMove(MOVE_MIRROR(wmvList[i]));
   }
 }
 
@@ -638,16 +594,16 @@ bool PositionStruct::LegalMove(int mv) const {
   if ((pcMoved & nSideTag) == 0) {
     return false;
   }
-  //jjchess __ASSERT_SQUARE(sqSrc);
-  //jjchess __ASSERT_SQUARE(sqDst);
-  //jjchess __ASSERT_PIECE(pcMoved);
+  __ASSERT_SQUARE(sqSrc);
+  __ASSERT_SQUARE(sqDst);
+  __ASSERT_PIECE(pcMoved);
 
   // 2. 检查吃到的子是否为对方棋子(如果有吃子并且没有升变的话)
   pcCaptured = this->ucpcSquares[sqDst];
   if (sqSrc != sqDst && (pcCaptured & nSideTag) != 0) {
     return false;
   }
-  //jjchess __ASSERT_BOUND(0, PIECE_INDEX(pcMoved), 15);
+  __ASSERT_BOUND(0, PIECE_INDEX(pcMoved), 15);
   switch (PIECE_INDEX(pcMoved)) {
 
   // 3. 如果是帅(将)或仕(士)，则先看是否在九宫内，再看是否是合理位移
@@ -744,7 +700,7 @@ int PositionStruct::CheckedBy(bool bLazy) const {
   if (sqSrc == 0) {
     return 0;
   }
-  //jjchess __ASSERT_SQUARE(sqSrc);
+  __ASSERT_SQUARE(sqSrc);
 
   // 2. 获得帅(将)所在格子的位行和位列
   x = FILE_X(sqSrc);
@@ -755,7 +711,7 @@ int PositionStruct::CheckedBy(bool bLazy) const {
   // 3. 判断是否将帅对脸
   sqDst = this->ucsqPieces[nOppSideTag + KING_FROM];
   if (sqDst != 0) {
-    //jjchess __ASSERT_SQUARE(sqDst);
+    __ASSERT_SQUARE(sqDst);
     if (x == FILE_X(sqDst) && (lpsmsFile->wRookCap & PreGen.wBitFileMask[sqDst]) != 0) {
       return CHECK_MULTI;
     }
@@ -765,14 +721,14 @@ int PositionStruct::CheckedBy(bool bLazy) const {
   for (i = KNIGHT_FROM; i <= KNIGHT_TO; i ++) {
     sqDst = this->ucsqPieces[nOppSideTag + i];
     if (sqDst != 0) {
-      //jjchess __ASSERT_SQUARE(sqDst);
+      __ASSERT_SQUARE(sqDst);
       sqPin = KNIGHT_PIN(sqDst, sqSrc); // 注意，sqSrc和sqDst是反的！
       if (sqPin != sqDst && this->ucpcSquares[sqPin] == 0) {
         if (bLazy || pcCheckedBy > 0) {
           return CHECK_MULTI;
         }
         pcCheckedBy = nOppSideTag + i;
-        //jjchess __ASSERT_PIECE(pcCheckedBy);
+        __ASSERT_PIECE(pcCheckedBy);
       }
     }
   }
@@ -781,14 +737,14 @@ int PositionStruct::CheckedBy(bool bLazy) const {
   for (i = ROOK_FROM; i <= ROOK_TO; i ++) {
     sqDst = this->ucsqPieces[nOppSideTag + i];
     if (sqDst != 0) {
-      //jjchess __ASSERT_SQUARE(sqDst);
+      __ASSERT_SQUARE(sqDst);
       if (x == FILE_X(sqDst)) {
         if ((lpsmsFile->wRookCap & PreGen.wBitFileMask[sqDst]) != 0) {
           if (bLazy || pcCheckedBy > 0) {
             return CHECK_MULTI;
           }
           pcCheckedBy = nOppSideTag + i;
-          //jjchess __ASSERT_PIECE(pcCheckedBy);
+          __ASSERT_PIECE(pcCheckedBy);
         }
       } else if (y == RANK_Y(sqDst)) {
         if ((lpsmsRank->wRookCap & PreGen.wBitRankMask[sqDst]) != 0) {
@@ -796,7 +752,7 @@ int PositionStruct::CheckedBy(bool bLazy) const {
             return CHECK_MULTI;
           }
           pcCheckedBy = nOppSideTag + i;
-          //jjchess __ASSERT_PIECE(pcCheckedBy);
+          __ASSERT_PIECE(pcCheckedBy);
         }
       }
     }
@@ -806,14 +762,14 @@ int PositionStruct::CheckedBy(bool bLazy) const {
   for (i = CANNON_FROM; i <= CANNON_TO; i ++) {
     sqDst = this->ucsqPieces[nOppSideTag + i];
     if (sqDst != 0) {
-      //jjchess __ASSERT_SQUARE(sqDst);
+      __ASSERT_SQUARE(sqDst);
       if (x == FILE_X(sqDst)) {
         if ((lpsmsFile->wCannonCap & PreGen.wBitFileMask[sqDst]) != 0) {
           if (bLazy || pcCheckedBy > 0) {
             return CHECK_MULTI;
           }
           pcCheckedBy = nOppSideTag + i;
-          //jjchess __ASSERT_PIECE(pcCheckedBy);
+          __ASSERT_PIECE(pcCheckedBy);
         }
       } else if (y == RANK_Y(sqDst)) {
         if ((lpsmsRank->wCannonCap & PreGen.wBitRankMask[sqDst]) != 0) {
@@ -821,7 +777,7 @@ int PositionStruct::CheckedBy(bool bLazy) const {
             return CHECK_MULTI;
           }
           pcCheckedBy = nOppSideTag + i;
-          //jjchess __ASSERT_PIECE(pcCheckedBy);
+          __ASSERT_PIECE(pcCheckedBy);
         }
       }
     }
@@ -837,7 +793,7 @@ int PositionStruct::CheckedBy(bool bLazy) const {
         return CHECK_MULTI;
       }
       pcCheckedBy = nOppSideTag + i;
-      //jjchess __ASSERT_PIECE(pcCheckedBy);
+      __ASSERT_PIECE(pcCheckedBy);
     }
   }
   pc = this->ucpcSquares[SQUARE_FORWARD(sqSrc, this->sdPlayer)];
@@ -846,7 +802,7 @@ int PositionStruct::CheckedBy(bool bLazy) const {
       return CHECK_MULTI;
     }
     pcCheckedBy = nOppSideTag + i;
-    //jjchess __ASSERT_PIECE(pcCheckedBy);
+    __ASSERT_PIECE(pcCheckedBy);
   }
   return pcCheckedBy;
 }
@@ -909,7 +865,7 @@ int PositionStruct::RepStatus(int nRecur) const {
 
   // 3. 检查上一个着法，如果是空着或吃子着法，就不可能有重复了
   while (lprbs->mvs.wmv != 0 && lprbs->mvs.CptDrw <= 0) {
-   // __ASSERT(lprbs >= this->rbsList);
+    __ASSERT(lprbs >= this->rbsList);
 
     // 4. 判断双方的长打级别，0表示无长打，0xffff表示长捉，0x10000表示长将
     if (sd == this->sdPlayer) {

@@ -19,13 +19,10 @@ You should have received a copy of the GNU Lesser General Public
 License along with this library; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
+
 #include <string.h>
 #include "base.h"
 #include "pregen.h"
-
-
-//后加
-bool  g_bIsSwopColour = false;
 
 const bool cbcInBoard[256] = {
   0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
@@ -250,14 +247,14 @@ void PreGenInit(void) {
         }
       }
       // 4. 为"smv"和"sms"的值作断言
-	  //jjchess  __ASSERT_BOUND_2(3, smv.ucNonCap[1], smv.ucNonCap[0], 11);
-	  //jjchess  __ASSERT_BOUND_2(3, smv.ucRookCap[1], smv.ucRookCap[0], 11);
-	  //jjchess  __ASSERT_BOUND_2(3, smv.ucCannonCap[1], smv.ucCannonCap[0], 11);
-	  //jjchess  __ASSERT_BOUND_2(3, smv.ucSuperCap[1], smv.ucSuperCap[0], 11);
-	  //jjchess  __ASSERT_BITRANK(sms.wNonCap);
-	  //jjchess  __ASSERT_BITRANK(sms.wRookCap);
-	  //jjchess  __ASSERT_BITRANK(sms.wCannonCap);
-	  //jjchess  __ASSERT_BITRANK(sms.wSuperCap);
+      __ASSERT_BOUND_2(3, smv.ucNonCap[1], smv.ucNonCap[0], 11);
+      __ASSERT_BOUND_2(3, smv.ucRookCap[1], smv.ucRookCap[0], 11);
+      __ASSERT_BOUND_2(3, smv.ucCannonCap[1], smv.ucCannonCap[0], 11);
+      __ASSERT_BOUND_2(3, smv.ucSuperCap[1], smv.ucSuperCap[0], 11);
+      __ASSERT_BITRANK(sms.wNonCap);
+      __ASSERT_BITRANK(sms.wRookCap);
+      __ASSERT_BITRANK(sms.wCannonCap);
+      __ASSERT_BITRANK(sms.wSuperCap);
       // 5. 将临时变量"smv"和"sms"拷贝到着法预生成数组中
       PreGen.smvRankMoveTab[i][j] = smv;
       PreGen.smsRankMaskTab[i][j] = sms;
@@ -321,14 +318,14 @@ void PreGenInit(void) {
         }
       }
       // 4. 为"smv"和"sms"的值作断言
-	  //jjchess __ASSERT_BOUND_2(3, smv.ucNonCap[1] >> 4, smv.ucNonCap[0] >> 4, 12);
-	  //jjchess  __ASSERT_BOUND_2(3, smv.ucRookCap[1] >> 4, smv.ucRookCap[0] >> 4, 12);
-	  //jjchess  __ASSERT_BOUND_2(3, smv.ucCannonCap[1] >> 4, smv.ucCannonCap[0] >> 4, 12);
-	  //jjchess  __ASSERT_BOUND_2(3, smv.ucSuperCap[1] >> 4, smv.ucSuperCap[0] >> 4, 12);
-	  //jjchess  __ASSERT_BITFILE(sms.wNonCap);
-	  //jjchess  __ASSERT_BITFILE(sms.wRookCap);
-	  //jjchess  __ASSERT_BITFILE(sms.wCannonCap);
-	  //jjchess  __ASSERT_BITFILE(sms.wSuperCap);
+      __ASSERT_BOUND_2(3, smv.ucNonCap[1] >> 4, smv.ucNonCap[0] >> 4, 12);
+      __ASSERT_BOUND_2(3, smv.ucRookCap[1] >> 4, smv.ucRookCap[0] >> 4, 12);
+      __ASSERT_BOUND_2(3, smv.ucCannonCap[1] >> 4, smv.ucCannonCap[0] >> 4, 12);
+      __ASSERT_BOUND_2(3, smv.ucSuperCap[1] >> 4, smv.ucSuperCap[0] >> 4, 12);
+      __ASSERT_BITFILE(sms.wNonCap);
+      __ASSERT_BITFILE(sms.wRookCap);
+      __ASSERT_BITFILE(sms.wCannonCap);
+      __ASSERT_BITFILE(sms.wSuperCap);
       // 5. 将临时变量"smv"和"sms"拷贝到着法预生成数组中
       PreGen.smvFileMoveTab[i][j] = smv;
       PreGen.smsFileMaskTab[i][j] = sms;
@@ -347,11 +344,7 @@ void PreGenInit(void) {
           n ++;
         }
       }
-	  /*if (n <= 4)
-	  {
-		  int i = 0;
-	  }*/
-	   __ASSERT(n <= 4);
+      __ASSERT(n <= 4);
       PreGen.ucsqKingMoves[sqSrc][n] = 0;
       // 生成仕(士)的着法预生成数组
       n = 0;
@@ -362,11 +355,7 @@ void PreGenInit(void) {
           n ++;
         }
       }
-	    __ASSERT(n <= 4);
-	 /* if (n <= 4)
-	  {
-		  int i = 0;
-	  }*/
+      __ASSERT(n <= 4);
       PreGen.ucsqAdvisorMoves[sqSrc][n] = 0;
       // 生成相(象)的着法预生成数组，包括象眼数组
       n = 0;
@@ -378,8 +367,7 @@ void PreGenInit(void) {
           n ++;
         }
       }
-	    __ASSERT(n <= 4);
-	  
+      __ASSERT(n <= 4);
       PreGen.ucsqBishopMoves[sqSrc][n] = 0;
       // 生成马的着法预生成数组，包括马腿数组
       n = 0;
@@ -391,34 +379,18 @@ void PreGenInit(void) {
           n ++;
         }
       }
-	    __ASSERT(n <= 8);
-	 
+      __ASSERT(n <= 8);
       PreGen.ucsqKnightMoves[sqSrc][n] = 0;
       // 生成兵(卒)的着法预生成数组
       for (i = 0; i < 2; i ++) {
         n = 0;
         sqDst = SQUARE_FORWARD(sqSrc, i);
-	/*	if (g_bIsSwopColour)
-		{
-			sqSrc = 255 - sqSrc;
-		}*/
-
-		/*	sqDst = sqSrc + (i == 0 ? 16 : -16);
-			else*/
-		
-		int nIdex = i;
-		if (g_bIsSwopColour)
-		{
-			nIdex = (nIdex == 0 ? 1 : 0);
-		}
-		sqDst = sqSrc + (nIdex == 0 ? -16 : 16);
-
+        sqDst = sqSrc + (i == 0 ? -16 : 16);
         if (IN_BOARD(sqDst)) {
           PreGen.ucsqPawnMoves[i][sqSrc][n] = sqDst;
           n ++;
         }
-	
-		if (AWAY_HALF(sqSrc, nIdex)) {
+        if (AWAY_HALF(sqSrc, i)) {
           for (j = -1; j <= 1; j += 2) {
             sqDst = sqSrc + j;
             if (IN_BOARD(sqDst)) {
@@ -427,8 +399,7 @@ void PreGenInit(void) {
             }
           }
         }
-		  __ASSERT(n <= 3);
-		
+        __ASSERT(n <= 3);
         PreGen.ucsqPawnMoves[i][sqSrc][n] = 0;
       }
     }

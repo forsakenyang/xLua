@@ -19,12 +19,9 @@ You should have received a copy of the GNU Lesser General Public
 License along with this library; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
+
 #include "position.h"
 #include "book.h"
-
-
-
-
 
 int GetBookMoves(const PositionStruct &pos, const char *szBookFile, BookStruct *lpbks) {
   BookFileStruct BookFile;
@@ -67,7 +64,7 @@ int GetBookMoves(const PositionStruct &pos, const char *szBookFile, BookStruct *
     BookFile.Close();
     return 0;
   }
-  //jjchess __ASSERT_BOUND(0, nPtr, BookFile.nLen - 1);
+  __ASSERT_BOUND(0, nPtr, BookFile.nLen - 1);
 
   // 4. 如果找到局面，则向前查找第一个着法；
   for (nPtr --; nPtr >= 0; nPtr --) {
@@ -86,11 +83,6 @@ int GetBookMoves(const PositionStruct &pos, const char *szBookFile, BookStruct *
     }
     if (posScan.LegalMove(bk.wmv)) {
       // 如果局面是第二趟搜索到的，则着法必须做镜像
-		if (nMoves >= 128)
-		{
-			int a;
-			a = 10;
-		}
       lpbks[nMoves].nPtr = nPtr;
       lpbks[nMoves].wmv = (nScan == 0 ? bk.wmv : MOVE_MIRROR(bk.wmv));
       lpbks[nMoves].wvl = bk.wvl;
@@ -110,13 +102,5 @@ int GetBookMoves(const PositionStruct &pos, const char *szBookFile, BookStruct *
       }
     }
   }
-
-  if (nMoves >= 128)
-  {
-	  int a;
-	  a = 10;
-  }
   return nMoves;
 }
-
-

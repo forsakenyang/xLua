@@ -18,13 +18,18 @@ Lesser General Public License for more details.
 You should have received a copy of the GNU Lesser General Public
 License along with this library; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
-*/#include "base.h"
+*/
+
+#include "base.h"
 #include "rc4prng.h"
+#ifndef CCHESS_A3800
+  #include "ucci.h"
+#endif
 #include "pregen.h"
 #include "position.h"
 
-//#ifndef SEARCH_H
-//#define SEARCH_H
+#ifndef SEARCH_H
+#define SEARCH_H
 
 // 搜索模式
 const int GO_MODE_INFINITY = 0;
@@ -45,27 +50,24 @@ struct SearchStruct {
   int nRandomMask, nBanMoves;        // 随机性屏蔽位和禁着数
   uint16_t wmvBanList[MAX_MOVE_NUM]; // 禁着列表
   char szBookFile[1024];             // 开局库
-//#ifdef CCHESS_A3800
+// #ifdef CCHESS_A3800
   int mvResult;                      // 返回着法
-//#endif
+// #endif
 };
 
 extern SearchStruct Search;
 
-//#ifndef CCHESS_A3800
+// #ifndef CCHESS_A3800
 
 // UCCI局面构造过程
-//void BuildPos(PositionStruct &pos, const UcciCommStruct &UcciComm);
+void BuildPos(PositionStruct &pos, const UcciCommStruct &UcciComm);
 
 // UCCI支持 - 输出叶子结点的局面信息
 void PopLeaf(PositionStruct &pos);
-//#endif
+
+// #endif
 
 // 搜索的启动过程
 void SearchMain(int nDepth);
 
-//后加
-void SetKillThredMsg(bool IsKill);
-
-
-//#endif
+#endif

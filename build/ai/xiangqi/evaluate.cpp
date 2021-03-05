@@ -19,6 +19,7 @@ You should have received a copy of the GNU Lesser General Public
 License along with this library; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
+
 #include "base.h"
 #include "pregen.h"
 #include "position.h"
@@ -314,11 +315,11 @@ int PositionStruct::StringHold(void) const {
     for (i = ROOK_FROM; i <= ROOK_TO; i ++) {
       sqSrc = this->ucsqPieces[nSideTag + i];
       if (sqSrc != 0) {
-        //jjchess __ASSERT_SQUARE(sqSrc);
+        __ASSERT_SQUARE(sqSrc);
         // 考查牵制目标是帅(将)的情况
         sqDst = this->ucsqPieces[nOppSideTag + KING_FROM];
         if (sqDst != 0) {
-          //jjchess __ASSERT_SQUARE(sqDst);
+          __ASSERT_SQUARE(sqDst);
           x = FILE_X(sqSrc);
           y = RANK_Y(sqSrc);
           if (x == FILE_X(sqDst)) {
@@ -328,7 +329,7 @@ int PositionStruct::StringHold(void) const {
             if (sqDst == lpsmv->ucCannonCap[nDir] + FILE_DISP(x)) {
               // 被牵制子"sqStr"是车(炮)本身能吃到的棋子，下同
               sqStr = lpsmv->ucRookCap[nDir] + FILE_DISP(x);
-              //jjchess __ASSERT_SQUARE(sqStr);
+              __ASSERT_SQUARE(sqStr);
               // 被牵制子必须是对方的子，下同
               if ((this->ucpcSquares[sqStr] & nOppSideTag) != 0) {
                 // 如果被牵制子是有价值的，而且被牵制子没有保护(被目标子保护不算)，那么牵制是有价值的，下同
@@ -343,7 +344,7 @@ int PositionStruct::StringHold(void) const {
             nDir = (sqSrc < sqDst ? 0 : 1);
             if (sqDst == lpsmv->ucCannonCap[nDir] + RANK_DISP(y)) {
               sqStr = lpsmv->ucRookCap[nDir] + RANK_DISP(y);
-              //jjchess __ASSERT_SQUARE(sqStr);
+              __ASSERT_SQUARE(sqStr);
               if ((this->ucpcSquares[sqStr] & nOppSideTag) != 0) {
                 if (cnValuableStringPieces[this->ucpcSquares[sqStr]] > 0 &&
                     !this->Protected(OPP_SIDE(sd), sqStr, sqDst)) {
@@ -357,7 +358,7 @@ int PositionStruct::StringHold(void) const {
         for (j = ROOK_FROM; j <= ROOK_TO; j ++) {
           sqDst = this->ucsqPieces[nOppSideTag + j];
           if (sqDst != 0) {
-            //jjchess __ASSERT_SQUARE(sqDst);
+            __ASSERT_SQUARE(sqDst);
             x = FILE_X(sqSrc);
             y = RANK_Y(sqSrc);
             if (x == FILE_X(sqDst)) {
@@ -365,7 +366,7 @@ int PositionStruct::StringHold(void) const {
               nDir = (sqSrc < sqDst ? 0 : 1);
               if (sqDst == lpsmv->ucCannonCap[nDir] + FILE_DISP(x)) {
                 sqStr = lpsmv->ucRookCap[nDir] + FILE_DISP(x);
-                //jjchess __ASSERT_SQUARE(sqStr);
+                __ASSERT_SQUARE(sqStr);
                 if ((this->ucpcSquares[sqStr] & nOppSideTag) != 0) {
                   // 目标子是车，不同于帅(将)，要求车也没有保护时才有牵制价值，下同
                   if (cnValuableStringPieces[this->ucpcSquares[sqStr]] > 0 &&
@@ -379,7 +380,7 @@ int PositionStruct::StringHold(void) const {
               nDir = (sqSrc < sqDst ? 0 : 1);
               if (sqDst == lpsmv->ucCannonCap[nDir] + RANK_DISP(y)) {
                 sqStr = lpsmv->ucRookCap[nDir] + RANK_DISP(y);
-                //jjchess __ASSERT_SQUARE(sqStr);
+                __ASSERT_SQUARE(sqStr);
                 if ((this->ucpcSquares[sqStr] & nOppSideTag) != 0) {
                   if (cnValuableStringPieces[this->ucpcSquares[sqStr]] > 0 &&
                       !this->Protected(OPP_SIDE(sd), sqDst) && !this->Protected(OPP_SIDE(sd), sqStr, sqDst)) {
@@ -397,11 +398,11 @@ int PositionStruct::StringHold(void) const {
     for (i = CANNON_FROM; i <= CANNON_TO; i ++) {
       sqSrc = this->ucsqPieces[nSideTag + i];
       if (sqSrc != 0) {
-        //jjchess __ASSERT_SQUARE(sqSrc);
+        __ASSERT_SQUARE(sqSrc);
         // 考查牵制目标是帅(将)的情况
         sqDst = this->ucsqPieces[nOppSideTag + KING_FROM];
         if (sqDst != 0) {
-          //jjchess __ASSERT_SQUARE(sqDst);
+          __ASSERT_SQUARE(sqDst);
           x = FILE_X(sqSrc);
           y = RANK_Y(sqSrc);
           if (x == FILE_X(sqDst)) {
@@ -409,7 +410,7 @@ int PositionStruct::StringHold(void) const {
             nDir = (sqSrc < sqDst ? 0 : 1);
             if (sqDst == lpsmv->ucSuperCap[nDir] + FILE_DISP(x)) {
               sqStr = lpsmv->ucCannonCap[nDir] + FILE_DISP(x);
-              //jjchess __ASSERT_SQUARE(sqStr);
+              __ASSERT_SQUARE(sqStr);
               if ((this->ucpcSquares[sqStr] & nOppSideTag) != 0) {
                 if (cnValuableStringPieces[this->ucpcSquares[sqStr]] > 1 &&
                     !this->Protected(OPP_SIDE(sd), sqStr, sqDst)) {
@@ -422,7 +423,7 @@ int PositionStruct::StringHold(void) const {
             nDir = (sqSrc < sqDst ? 0 : 1);
             if (sqDst == lpsmv->ucSuperCap[nDir] + RANK_DISP(y)) {
               sqStr = lpsmv->ucCannonCap[nDir] + RANK_DISP(y);
-              //jjchess __ASSERT_SQUARE(sqStr);
+              __ASSERT_SQUARE(sqStr);
               if ((this->ucpcSquares[sqStr] & nOppSideTag) != 0) {
                 if (cnValuableStringPieces[this->ucpcSquares[sqStr]] > 1 &&
                     !this->Protected(OPP_SIDE(sd), sqStr, sqDst)) {
@@ -436,7 +437,7 @@ int PositionStruct::StringHold(void) const {
         for (j = ROOK_FROM; j <= ROOK_TO; j ++) {
           sqDst = this->ucsqPieces[nOppSideTag + j];
           if (sqDst != 0) {
-            //jjchess __ASSERT_SQUARE(sqDst);
+            __ASSERT_SQUARE(sqDst);
             x = FILE_X(sqSrc);
             y = RANK_Y(sqSrc);
             if (x == FILE_X(sqDst)) {
@@ -444,7 +445,7 @@ int PositionStruct::StringHold(void) const {
               nDir = (sqSrc < sqDst ? 0 : 1);
               if (sqDst == lpsmv->ucSuperCap[nDir] + FILE_DISP(x)) {
                 sqStr = lpsmv->ucCannonCap[nDir] + FILE_DISP(x);
-                //jjchess __ASSERT_SQUARE(sqStr);
+                __ASSERT_SQUARE(sqStr);
                 if ((this->ucpcSquares[sqStr] & nOppSideTag) != 0) {
                   if (cnValuableStringPieces[this->ucpcSquares[sqStr]] > 1 &&
                       !this->Protected(OPP_SIDE(sd), sqStr, sqDst)) {
@@ -457,7 +458,7 @@ int PositionStruct::StringHold(void) const {
               nDir = (sqSrc < sqDst ? 0 : 1);
               if (sqDst == lpsmv->ucSuperCap[nDir] + RANK_DISP(y)) {
                 sqStr = lpsmv->ucCannonCap[nDir] + RANK_DISP(y);
-                //jjchess __ASSERT_SQUARE(sqStr);
+                __ASSERT_SQUARE(sqStr);
                 if ((this->ucpcSquares[sqStr] & nOppSideTag) != 0) {
                   if (cnValuableStringPieces[this->ucpcSquares[sqStr]] > 1 &&
                       !this->Protected(OPP_SIDE(sd), sqStr, sqDst)) {
@@ -487,14 +488,14 @@ int PositionStruct::RookMobility(void) const {
     for (i = ROOK_FROM; i <= ROOK_TO; i ++) {
       sqSrc = this->ucsqPieces[nSideTag + i];
       if (sqSrc != 0) {
-        //jjchess __ASSERT_SQUARE(sqSrc);
+        __ASSERT_SQUARE(sqSrc);
         x = FILE_X(sqSrc);
         y = RANK_Y(sqSrc);
         vlRookMobility[sd] += PreEvalEx.cPopCnt16[this->RankMaskPtr(x, y)->wNonCap] +
             PreEvalEx.cPopCnt16[this->FileMaskPtr(x, y)->wNonCap];
       }
     }
-   // __ASSERT(vlRookMobility[sd] <= 34);
+    __ASSERT(vlRookMobility[sd] <= 34);
   }
   return SIDE_VALUE(this->sdPlayer, vlRookMobility[0] - vlRookMobility[1]) >> 1;
 }
@@ -535,13 +536,13 @@ int PositionStruct::KnightTrap(void) const {
     for (i = KNIGHT_FROM; i <= KNIGHT_TO; i ++) {
       sqSrc = this->ucsqPieces[nSideTag + i];
       if (sqSrc != 0) {
-        //jjchess __ASSERT_SQUARE(sqSrc);
+        __ASSERT_SQUARE(sqSrc);
         nMovable = 0;
         lpucsqDst = PreGen.ucsqKnightMoves[sqSrc];
         lpucsqPin = PreGen.ucsqKnightPins[sqSrc];
         sqDst = *lpucsqDst;
         while (sqDst != 0) {
-          //jjchess __ASSERT_SQUARE(sqDst);
+          __ASSERT_SQUARE(sqDst);
           // 以下的判断区别于"genmoves.cpp"中的着法生成器，排除了走到棋盘边缘和走到对方控制格的着法
           if (!cbcEdgeSquares[sqDst] && this->ucpcSquares[sqDst] == 0 &&
               this->ucpcSquares[*lpucsqPin] == 0 && !this->Protected(OPP_SIDE(sd), sqDst)) {
@@ -561,7 +562,7 @@ int PositionStruct::KnightTrap(void) const {
           vlKnightTraps[sd] += 5;
         }
       }
-     // __ASSERT(vlKnightTraps[sd] <= 20);
+      __ASSERT(vlKnightTraps[sd] <= 20);
     }
   }
   return SIDE_VALUE(this->sdPlayer, vlKnightTraps[1] - vlKnightTraps[0]);

@@ -19,6 +19,7 @@ You should have received a copy of the GNU Lesser General Public
 License along with this library; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
+
 #include "base.h"
 #include "pregen.h"
 #include "position.h"
@@ -360,9 +361,9 @@ void PositionStruct::PreEvaluate(void) {
   nMidgameValue += PopCnt32(this->dwBitPiece & BOTH_BITPIECE(ROOK_BITPIECE)) * ROOK_MIDGAME_VALUE;
   // 使用二次函数，子力很少时才认为接近残局
   nMidgameValue = (2 * TOTAL_MIDGAME_VALUE - nMidgameValue) * nMidgameValue / TOTAL_MIDGAME_VALUE;
-  //jjchess __ASSERT_BOUND(0, nMidgameValue, TOTAL_MIDGAME_VALUE);
+  __ASSERT_BOUND(0, nMidgameValue, TOTAL_MIDGAME_VALUE);
   PreEval.vlAdvanced = (TOTAL_ADVANCED_VALUE * nMidgameValue + TOTAL_ADVANCED_VALUE / 2) / TOTAL_MIDGAME_VALUE;
-  //jjchess  __ASSERT_BOUND(0, PreEval.vlAdvanced, TOTAL_ADVANCED_VALUE);
+  __ASSERT_BOUND(0, PreEval.vlAdvanced, TOTAL_ADVANCED_VALUE);
   for (sq = 0; sq < 256; sq ++) {
     if (IN_BOARD(sq)) {
       PreEval.ucvlWhitePieces[0][sq] = PreEval.ucvlBlackPieces[0][SQUARE_FLIP(sq)] = (uint8_t)
@@ -380,7 +381,7 @@ void PositionStruct::PreEvaluate(void) {
   }
   for (i = 0; i < 16; i ++) {
     PreEvalEx.vlHollowThreat[i] = cvlHollowThreat[i] * (nMidgameValue + TOTAL_MIDGAME_VALUE) / (TOTAL_MIDGAME_VALUE * 2);
-	//jjchess   __ASSERT_BOUND(0, PreEvalEx.vlHollowThreat[i], cvlHollowThreat[i]);
+    __ASSERT_BOUND(0, PreEvalEx.vlHollowThreat[i], cvlHollowThreat[i]);
     PreEvalEx.vlCentralThreat[i] = cvlCentralThreat[i];
   }
 
@@ -414,15 +415,14 @@ void PositionStruct::PreEvaluate(void) {
   } else {
     nBlackAttacks += (nBlackSimpleValue - nWhiteSimpleValue) * 2;
   }
-  nWhiteAttacks = CHESSMIN(nWhiteAttacks, TOTAL_ATTACK_VALUE);
-  nBlackAttacks = CHESSMIN(nBlackAttacks, TOTAL_ATTACK_VALUE);
+  nWhiteAttacks = MIN(nWhiteAttacks, TOTAL_ATTACK_VALUE);
+  nBlackAttacks = MIN(nBlackAttacks, TOTAL_ATTACK_VALUE);
   PreEvalEx.vlBlackAdvisorLeakage = TOTAL_ADVISOR_LEAKAGE * nWhiteAttacks / TOTAL_ATTACK_VALUE;
   PreEvalEx.vlWhiteAdvisorLeakage = TOTAL_ADVISOR_LEAKAGE * nBlackAttacks / TOTAL_ATTACK_VALUE;
-  //jjchess __ASSERT_BOUND(0, nWhiteAttacks, TOTAL_ATTACK_VALUE);
-  //jjchess  __ASSERT_BOUND(0, nBlackAttacks, TOTAL_ATTACK_VALUE);
-  //jjchess __ASSERT_BOUND(0, PreEvalEx.vlBlackAdvisorLeakage, TOTAL_ADVISOR_LEAKAGE);
-  //jjchess __ASSERT_BOUND(0, PreEvalEx.vlBlackAdvisorLeakage, TOTAL_ADVISOR_LEAKAGE);
-
+  __ASSERT_BOUND(0, nWhiteAttacks, TOTAL_ATTACK_VALUE);
+  __ASSERT_BOUND(0, nBlackAttacks, TOTAL_ATTACK_VALUE);
+  __ASSERT_BOUND(0, PreEvalEx.vlBlackAdvisorLeakage, TOTAL_ADVISOR_LEAKAGE);
+  __ASSERT_BOUND(0, PreEvalEx.vlBlackAdvisorLeakage, TOTAL_ADVISOR_LEAKAGE);
   for (sq = 0; sq < 256; sq ++) {
     if (IN_BOARD(sq)) {
       PreEval.ucvlWhitePieces[1][sq] = PreEval.ucvlWhitePieces[2][sq] = (uint8_t) ((cucvlAdvisorBishopThreatened[sq] * nBlackAttacks +
@@ -445,14 +445,14 @@ void PositionStruct::PreEvaluate(void) {
   for (sq = 0; sq < 256; sq ++) {
     if (IN_BOARD(sq)) {
       for (i = 0; i < 7; i ++) {
-       //jjchess  __ASSERT(PreEval.ucvlWhitePieces[i][sq] == PreEval.ucvlWhitePieces[i][SQUARE_MIRROR(sq)]);
-		  //jjchess  __ASSERT(PreEval.ucvlBlackPieces[i][sq] == PreEval.ucvlBlackPieces[i][SQUARE_MIRROR(sq)]);
+        __ASSERT(PreEval.ucvlWhitePieces[i][sq] == PreEval.ucvlWhitePieces[i][SQUARE_MIRROR(sq)]);
+        __ASSERT(PreEval.ucvlBlackPieces[i][sq] == PreEval.ucvlBlackPieces[i][SQUARE_MIRROR(sq)]);
       }
     }
   }
   for (i = FILE_LEFT; i <= FILE_RIGHT; i ++) {
-	  //jjchess  __ASSERT(PreEvalEx.vlWhiteBottomThreat[i] == PreEvalEx.vlWhiteBottomThreat[FILE_FLIP(i)]);
-	  //jjchess  __ASSERT(PreEvalEx.vlBlackBottomThreat[i] == PreEvalEx.vlBlackBottomThreat[FILE_FLIP(i)]);
+    __ASSERT(PreEvalEx.vlWhiteBottomThreat[i] == PreEvalEx.vlWhiteBottomThreat[FILE_FLIP(i)]);
+    __ASSERT(PreEvalEx.vlBlackBottomThreat[i] == PreEvalEx.vlBlackBottomThreat[FILE_FLIP(i)]);
   }
 #endif
 
@@ -468,14 +468,14 @@ void PositionStruct::PreEvaluate(void) {
   for (i = 16; i < 32; i ++) {
     sq = this->ucsqPieces[i];
     if (sq != 0) {
-		//jjchess  __ASSERT_SQUARE(sq);
+      __ASSERT_SQUARE(sq);
       this->vlWhite += PreEval.ucvlWhitePieces[PIECE_TYPE(i)][sq];
     }
   }
   for (i = 32; i < 48; i ++) {
     sq = this->ucsqPieces[i];
     if (sq != 0) {
-		//jjchess  __ASSERT_SQUARE(sq);
+      __ASSERT_SQUARE(sq);
       this->vlBlack += PreEval.ucvlBlackPieces[PIECE_TYPE(i)][sq];
     }
   }

@@ -18,7 +18,9 @@ Lesser General Public License for more details.
 You should have received a copy of the GNU Lesser General Public
 License along with this library; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
-*/#ifndef BOOK_H
+*/
+
+#ifndef BOOK_H
 #define BOOK_H
 
 #include <stdio.h>
@@ -41,15 +43,8 @@ inline int BOOK_POS_CMP(const BookStruct &bk, const PositionStruct &pos) {
 struct BookFileStruct {
   FILE *fp;
   int nLen;
-  bool Open(const char *szFileName, bool bEdit = false) 
-  {
-#if WIN32
-	  fp = NULL;
-	  fopen_s(&fp, szFileName, bEdit ? "r+b" : "rb");
-#else
-	  fp = fopen(szFileName, bEdit ? "r+b" : "rb");
-#endif
-
+  bool Open(const char *szFileName, bool bEdit = false) {
+    fp = fopen(szFileName, bEdit ? "r+b" : "rb");
     if (fp == NULL) {
       return false;
     } else {
@@ -73,7 +68,5 @@ struct BookFileStruct {
 
 // 获取开局库着法
 int GetBookMoves(const PositionStruct &pos, const char *szBookFile, BookStruct *lpbks);
-
-
 
 #endif

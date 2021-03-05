@@ -18,17 +18,16 @@ Lesser General Public License for more details.
 You should have received a copy of the GNU Lesser General Public
 License along with this library; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
-*/#ifndef MOVESORT_H
+*/
+
+#ifndef MOVESORT_H
 #define MOVESORT_H
 
 #include <string.h>
 #include "base.h"
 #include "position.h"
 
-//const int LIMIT_DEPTH = 64;       // 搜索的极限深度
-
 const int LIMIT_DEPTH = 64;       // 搜索的极限深度
-
 const int SORT_VALUE_MAX = 65535; // 着法序列最大值
 
 extern const int FIBONACCI_LIST[32];

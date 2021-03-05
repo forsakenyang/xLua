@@ -18,7 +18,9 @@ Lesser General Public License for more details.
 You should have received a copy of the GNU Lesser General Public
 License along with this library; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
-*/#include <string.h>
+*/
+
+#include <string.h>
 #include "base.h"
 #include "pregen.h"
 
@@ -41,7 +43,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 const int MAX_MOVE_NUM = 1024;  // 局面能容纳的回滚着法数
 const int MAX_GEN_MOVES = 128;  // 搜索的最大着法数，中国象棋的任何局面都不会超过120个着法
-const int DRAW_MOVES = 200;     // 默认的和棋着法数，ElephantEye设定在50回合即100步，但将军和应将不计入其中
+const int DRAW_MOVES = 100;     // 默认的和棋着法数，ElephantEye设定在50回合即100步，但将军和应将不计入其中
 const int REP_HASH_MASK = 4095; // 判断重复局面的迷你置换表长度，即4096个表项
 
 const int MATE_VALUE = 10000;           // 最高分值，即将死的分值
@@ -133,8 +135,6 @@ inline int PIECE_INDEX(int pc) {
 }
 
 extern const char *const cszStartFen;     // 起始局面的FEN串
-
-//  char * cszStartFen;
 extern const char *const cszPieceBytes;   // 棋子类型对应的棋子符号
 extern const int cnPieceTypes[48];        // 棋子序号对应的棋子类型
 extern const int cnSimpleValues[48];      // 棋子的简单分值
@@ -194,10 +194,10 @@ inline uint32_t MOVE_COORD(int mv) {      // 把着法转换成字符串
   Ret.c[2] = FILE_X(DST(mv)) - FILE_LEFT + 'a';
   Ret.c[3] = '9' - RANK_Y(DST(mv)) + RANK_TOP;
   // 断言输出着法的合理性
-  //jjchess __ASSERT_BOUND('a', Ret.c[0], 'i');
-  //jjchess __ASSERT_BOUND('0', Ret.c[1], '9');
-  //jjchess __ASSERT_BOUND('a', Ret.c[2], 'i');
-  //jjchess __ASSERT_BOUND('0', Ret.c[3], '9');
+  __ASSERT_BOUND('a', Ret.c[0], 'i');
+  __ASSERT_BOUND('0', Ret.c[1], '9');
+  __ASSERT_BOUND('a', Ret.c[2], 'i');
+  __ASSERT_BOUND('0', Ret.c[3], '9');
   return Ret.dw;
 }
 
@@ -301,8 +301,8 @@ struct PositionStruct {
   void UndoPromote(int sq, int pcCaptured);         // 撤消升变
 
   // 着法处理过程
-  bool MakeMove(int mv,bool bAddInstance=true);   // 执行一个着法
-  void UndoMakeMove(bool bRemoveInstance=true); // 撤消一个着法
+  bool MakeMove(int mv);   // 执行一个着法
+  void UndoMakeMove(void); // 撤消一个着法
   void NullMove(void);     // 执行一个空着
   void UndoNullMove(void); // 撤消一个空着
   void SetIrrev(void) {    // 把局面设成“不可逆”，即清除回滚着法
@@ -372,9 +372,7 @@ struct PositionStruct {
   int GenAllMoves(MoveStruct *lpmvs) const {                 // 全部着法生成器
     int nCapNum;
     nCapNum = GenCapMoves(lpmvs);
-	    int n_return= nCapNum + GenNonCapMoves(lpmvs + nCapNum);
-		//if(n_return>MAX_GEN_MOVES
-	return nCapNum + GenNonCapMoves(lpmvs + nCapNum)>MAX_GEN_MOVES ? MAX_GEN_MOVES : nCapNum + GenNonCapMoves(lpmvs + nCapNum);
+    return nCapNum + GenNonCapMoves(lpmvs + nCapNum);
   }
 
   // 着法生成过程，由于这些过程代码量特别大，所以把他们都集中在"preeval.cpp"和"evaluate.cpp"中

@@ -19,6 +19,7 @@ You should have received a copy of the GNU Lesser General Public
 License along with this library; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
+
 #include "base.h"
 #include "position.h"
 #include "movesort.h"
@@ -38,7 +39,7 @@ void MoveSortStruct::SetHistory(void) {
         mvs[j].wvl >>= nNewShift;
       }
       vl >>= nNewShift;
-      //jjchess __ASSERT_BOUND(32768, vl, 65535);
+      __ASSERT_BOUND(32768, vl, 65535);
       nShift += nNewShift;
     }
     mvs[i].wvl = vl;
@@ -52,17 +53,8 @@ void MoveSortStruct::ShellSort(void) {
   int i, j, nStep, nStepLevel;
   MoveStruct mvsBest;
   nStepLevel = 1;
-
-  if (nMoveNum > MAX_GEN_MOVES)
-	  nMoveNum = MAX_GEN_MOVES;
-
   while (cnShellStep[nStepLevel] < nMoveNum - nMoveIndex) {
     nStepLevel ++;
-    if(nStepLevel>=8)
-    {
-        int a;
-        a = 10;
-    }
   }
   nStepLevel --;
   while (nStepLevel > 0) {
@@ -107,7 +99,7 @@ int MoveSortStruct::InitEvade(PositionStruct &pos, int mv, const uint16_t *lpwmv
       } else if (mvs[i].wmv == lpwmvKiller[1]) {
         mvs[i].wvl = SORT_VALUE_MAX - 2;
       } else {
-		  mvs[i].wvl = CHESSMIN(mvs[i].wvl + 1, SORT_VALUE_MAX - 3);
+        mvs[i].wvl = MIN(mvs[i].wvl + 1, SORT_VALUE_MAX - 3);
       }
     } else {
       mvs[i].wvl = 0;
@@ -127,7 +119,7 @@ int MoveSortStruct::NextFull(const PositionStruct &pos) {
   case PHASE_HASH:
     nPhase = PHASE_GEN_CAP;
     if (mvHash != 0) {
-		//jjchess  __ASSERT(pos.LegalMove(mvHash));
+      __ASSERT(pos.LegalMove(mvHash));
       return mvHash;
     }
     // 技巧：这里没有"break"，表示"switch"的上一个"case"执行完后紧接着做下一个"case"，下同
@@ -144,7 +136,7 @@ int MoveSortStruct::NextFull(const PositionStruct &pos) {
     if (nMoveIndex < nMoveNum && mvs[nMoveIndex].wvl > 1) {
       // 注意：MVV(LVA)值不超过1，则说明吃子不是直接能获得优势的，这些着法将留在以后搜索
       nMoveIndex ++;
-      //jjchess __ASSERT_PIECE(pos.ucpcSquares[DST(mvs[nMoveIndex - 1].wmv)]);
+      __ASSERT_PIECE(pos.ucpcSquares[DST(mvs[nMoveIndex - 1].wmv)]);
       return mvs[nMoveIndex - 1].wmv;
     }
 
@@ -181,7 +173,6 @@ int MoveSortStruct::NextFull(const PositionStruct &pos) {
   default:
     return 0;
   }
-  return 0;
 }
 
 // 生成根结点的着法
@@ -207,20 +198,10 @@ void MoveSortStruct::InitRoot(const PositionStruct &pos, int nBanMoves, const ui
 // 更新根结点的着法排序列表
 void MoveSortStruct::UpdateRoot(int mv) {
   int i;
-  if (nMoveNum >= 128)
-  {
-	  int a;
-	  a = 10;
-	  return;
-  }
   for (i = 0; i < nMoveNum; i ++) {
-  //for (i = 0; i < MAX_GEN_MOVES; i++) {
-    if (mvs[i].wmv == mv) 
-	{
+    if (mvs[i].wmv == mv) {
       mvs[i].wvl = SORT_VALUE_MAX;
-    } 
-	else if (mvs[i].wvl > 0) 
-	{
+    } else if (mvs[i].wvl > 0) {
       mvs[i].wvl --;      
     }
   }

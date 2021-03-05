@@ -13,9 +13,9 @@
 #include "i64lib.h"
 
 #include "search.h"
-#include "hashes.h"
+#include "hash.h"
+#include "onyuan.h"
 
-const int INTERRUPT_COUNT = 4096; // 搜索若干结点后调用中断
 
 static int PosSetSdPlayer(lua_State* L)
 {
@@ -36,7 +36,7 @@ static int PosGetSdPlayer(lua_State* L)
 static int PosUndoMakeMove(lua_State* L)
 {
 	bool bRemoveInstance = (luaL_checkinteger(L, 1) != 0);
-	Search.pos.UndoMakeMove(bRemoveInstance);
+	Search.pos.UndoMakeMove();
 
 	return 0;
 }
@@ -46,7 +46,7 @@ static int PosMakeMove(lua_State* L)
 {
 	int mv = luaL_checkinteger(L, 1);
 	bool bAddInstance = (luaL_checkinteger(L, 2) != 0);
-	lua_pushboolean(L, Search.pos.MakeMove(mv, bAddInstance) ? 1 : 0);
+	lua_pushboolean(L, Search.pos.MakeMove(mv) ? 1 : 0);
 	return 1;
 }
  
@@ -325,6 +325,52 @@ static int XqTryAsyncSearch(lua_State* L)
 	return 1;
 }
 
+// -------------------- 新加 ------------------------
+static int ucci_init(lua_State* L){
+
+	//先释放
+	DelHash();
+
+	// LocatePath(Search.szBookFile, "BOOK.DAT");
+
+	PreGenInit();
+	NewHash(24); // 24=16MB, 25=32MB, 26=64MB, ...
+	Search.pos.FromFen(cszStartFen);
+	Search.pos.nDistance = 0;
+	Search.pos.PreEvaluate();
+	Search.nBanMoves = 0;
+	Search.bQuit = Search.bBatch = Search.bDebug = false;
+	Search.bUseHash = Search.bUseBook = Search.bNullMove = Search.bKnowledge = true;
+	Search.bIdle = false;
+	Search.nCountMask = INTERRUPT_COUNT - 1;
+	Search.nRandomMask = 0;
+	Search.rc4Random.InitRand();
+	Search.nRandomMask = 3;
+
+	return 1;
+}
+
+static int stop_engine(lua_State* L){
+	DelHash();
+}
+	
+
+static int run_engine(lua_State* L){
+	size_t len = 0;
+	const char* szLineStr = luaL_checklstring(L, 1, &len);
+	bool bPonderTime;
+}
+
+static int ucci_readline(lua_State* L){
+	char szLineStr[LINE_INPUT_MAX_CHAR];
+	if (Onyuan.ReadLine(szLineStr))
+	{
+		lua_pushstring(L, szLineStr);
+		return 1;
+	}
+	return 0;
+}
+
 
 static const luaL_Reg methods[] =
 {
@@ -361,6 +407,8 @@ static const luaL_Reg methods[] =
 	{ "XqUnlock", XqUnlock },
 	{ "XqAsyncSearch", XqAsyncSearch },
 	{ "XqTryAsyncSearch", XqTryAsyncSearch },
+
+	{ "ucci_read_line", ucci_readline },
 
 	{ NULL, NULL }
 };

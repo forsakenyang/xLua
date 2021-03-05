@@ -97,56 +97,56 @@ static bool Interrupt(void) {
   if (Search.bBatch) {
     return false;
   }
-  return false;
 
-// #ifdef CCHESS_A3800
-//   return false;
-// #else
-//   UcciCommStruct UcciComm;
-//   PositionStruct posProbe;
-//   // 如果不是批处理模式，那么先调用UCCI解释程序，再判断是否中止
-//   switch (BusyLine(UcciComm, Search.bDebug)) {
-//   case UCCI_COMM_ISREADY:
-//     // "isready"指令实际上没有意义
-//     printf("readyok\n");
-//     fflush(stdout);
-//     return false;
-//   case UCCI_COMM_PONDERHIT:
-//     // "ponderhit"指令启动计时功能，如果"SearchMain()"例程认为已经搜索了足够的时间， 那么发出中止信号
-//     if (Search2.bPonderStop) {
-//       Search2.bStop = true;
-//       return true;
-//     } else {
-//       Search.bPonder = false;
-//       return false;
-//     }
-//   case UCCI_COMM_PONDERHIT_DRAW:
-//     // "ponderhit draw"指令启动计时功能，并设置提和标志
-//     Search.bDraw = true;
-//     if (Search2.bPonderStop) {
-//       Search2.bStop = true;
-//       return true;
-//     } else {
-//       Search.bPonder = false;
-//       return false;
-//     }
-//   case UCCI_COMM_STOP:
-//     // "stop"指令发送中止信号
-//     Search2.bStop = true;
-//     return true;
-//   case UCCI_COMM_PROBE:
-//     // "probe"指令输出Hash表信息
-//     BuildPos(posProbe, UcciComm);
-//     PopHash(posProbe);
-//     return false;
-//   case UCCI_COMM_QUIT:
-//     // "quit"指令发送退出信号
-//     Search.bQuit = Search2.bStop = true;
-//     return true;
-//   default:
-//     return false;
-//   }
-// #endif
+ //#ifdef CCHESS_A3800
+ //  return false;
+ //#else
+   UcciCommStruct UcciComm;
+   PositionStruct posProbe;
+   // 如果不是批处理模式，那么先调用UCCI解释程序，再判断是否中止
+   switch (BusyLine(UcciComm, Search.bDebug)) {
+   case UCCI_COMM_ISREADY:
+     // "isready"指令实际上没有意义
+     printf("readyok\n");
+     Onyuan.WriteLine("readyok\n");
+     fflush(stdout);
+     return false;
+   case UCCI_COMM_PONDERHIT:
+     // "ponderhit"指令启动计时功能，如果"SearchMain()"例程认为已经搜索了足够的时间， 那么发出中止信号
+     if (Search2.bPonderStop) {
+       Search2.bStop = true;
+       return true;
+     } else {
+       Search.bPonder = false;
+       return false;
+     }
+   case UCCI_COMM_PONDERHIT_DRAW:
+     // "ponderhit draw"指令启动计时功能，并设置提和标志
+     Search.bDraw = true;
+     if (Search2.bPonderStop) {
+       Search2.bStop = true;
+       return true;
+     } else {
+       Search.bPonder = false;
+       return false;
+     }
+   case UCCI_COMM_STOP:
+     // "stop"指令发送中止信号
+     Search2.bStop = true;
+     return true;
+   case UCCI_COMM_PROBE:
+     // "probe"指令输出Hash表信息
+     BuildPos(posProbe, UcciComm);
+     PopHash(posProbe);
+     return false;
+   case UCCI_COMM_QUIT:
+     // "quit"指令发送退出信号
+     Search.bQuit = Search2.bStop = true;
+     return true;
+   default:
+     return false;
+   }
+ //#endif
 }
 
 #ifndef CCHESS_A3800

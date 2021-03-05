@@ -351,17 +351,17 @@ static int ucci_init(lua_State* L){
 }
 
 static int stop_engine(lua_State* L){
-	DelHash();
+	Onyuan.StopEngine();
+	return 1;
 }
 	
 
-static int run_engine(lua_State* L){
-	size_t len = 0;
-	const char* szLineStr = luaL_checklstring(L, 1, &len);
-	bool bPonderTime;
+static int start_engine(lua_State* L){
+	Onyuan.StartEngine();
+	return 1;
 }
 
-static int ucci_readline(lua_State* L){
+static int ucci_output(lua_State* L){
 	char szLineStr[LINE_INPUT_MAX_CHAR];
 	if (Onyuan.ReadLine(szLineStr))
 	{
@@ -369,6 +369,14 @@ static int ucci_readline(lua_State* L){
 		return 1;
 	}
 	return 0;
+}
+
+static int ucci_input(lua_State* L){
+
+	size_t len = 0;
+	const char* szLineStr = luaL_checklstring(L, 1, &len);
+	Onyuan.CommandIn(szLineStr);
+	return 1;
 }
 
 

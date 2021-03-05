@@ -13,6 +13,7 @@ can be used without restriction.
 #include "base2.h"
 #include "parse.h"
 #include "ucci.h"  
+#include "onyuan.h"
 
 /* UCCI指令分析模块由三各UCCI指令解释器组成。
  *
@@ -24,8 +25,6 @@ can be used without restriction.
 
 // static PipeStruct pipeStd;
 
-const int MAX_MOVE_NUM = 1024;
-const int LINE_INPUT_MAX_CHAR = 8192;
 
 static char szFen[LINE_INPUT_MAX_CHAR];
 static uint32_t dwCoordList[MAX_MOVE_NUM];
@@ -57,14 +56,21 @@ static bool ParsePos(UcciCommStruct &UcciComm, char *lp) {
   return true;
 }
 
-UcciCommEnum Translate(UcciCommStruct &UcciComm, const char *szLineStr) {
+UcciCommEnum IdleLine(UcciCommStruct &UcciComm, bool bDebug) {
+    char szLineStr[LINE_INPUT_MAX_CHAR];
+    char* lp;
+    int i;
+    bool bGoTime;;
 
-  int len = strlen(szLineStr);
-  char *lp = new char[LINE_INPUT_MAX_CHAR];
-  int i;
-  bool bGoTime;
-  memcpy(lp, szLineStr, len);
+    while (!Onyuan.CommandOut(szLineStr)) {
+        Idle();
+    }
 
+    lp = szLineStr;
+    if (bDebug) {
+        printf("info idleline [%s]\n", lp);
+        fflush(stdout);
+    }
   if (false) {
   // "IdleLine()"是最复杂的UCCI指令解释器，大多数的UCCI指令都由它来解释，包括：
   // 1. "isready"指令
@@ -339,4 +345,47 @@ UcciCommEnum Translate(UcciCommStruct &UcciComm, const char *szLineStr) {
   } else {
     return UCCI_COMM_UNKNOWN;
   }
+}
+
+
+UcciCommEnum BusyLine(UcciCommStruct& UcciComm, bool bDebug) {
+    char szLineStr[LINE_INPUT_MAX_CHAR];
+    char* lp;
+    if (Onyuan.CommandOut(szLineStr)) {
+        if (bDebug) {
+            printf("info busyline [%s]\n", szLineStr);
+            fflush(stdout);
+        }
+        // "BusyLine"只能接收"isready"、"ponderhit"和"stop"这三条指令
+        if (false) {
+        }
+        else if (StrEqv(szLineStr, "isready")) {
+            return UCCI_COMM_ISREADY;
+        }
+        else if (StrEqv(szLineStr, "ponderhit draw")) {
+            return UCCI_COMM_PONDERHIT_DRAW;
+            // 注意：必须首先判断"ponderhit draw"，再判断"ponderhit"
+        }
+        else if (StrEqv(szLineStr, "ponderhit")) {
+            return UCCI_COMM_PONDERHIT;
+        }
+        else if (StrEqv(szLineStr, "stop")) {
+            return UCCI_COMM_STOP;
+        }
+        else if (StrEqv(szLineStr, "quit")) {
+            return UCCI_COMM_QUIT;
+        }
+        else {
+            lp = szLineStr;
+            if (StrEqvSkip(lp, "probe ")) {
+                return ParsePos(UcciComm, lp) ? UCCI_COMM_PROBE : UCCI_COMM_UNKNOWN;
+            }
+            else {
+                return UCCI_COMM_UNKNOWN;
+            }
+        }
+    }
+    else {
+        return UCCI_COMM_UNKNOWN;
+    }
 }

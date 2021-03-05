@@ -99,6 +99,6 @@ union UcciCommStruct {
 // UcciCommEnum IdleLine(UcciCommStruct &UcciComm, bool bDebug); // 引擎空闲时接收指令
 // UcciCommEnum BusyLine(UcciCommStruct &UcciComm, bool bDebug); // 引擎思考时接收指令，只允许接收"stop"、"ponderhit"和"probe"
 
-UcciCommEnum Translate(UcciCommStruct &UcciComm, char *szLineStr); // 将指令翻译
+UcciCommEnum Translate(UcciCommStruct &UcciComm, const char *szLineStr); // 将指令翻译
 
 #endif

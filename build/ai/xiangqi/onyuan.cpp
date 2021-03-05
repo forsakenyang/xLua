@@ -15,20 +15,37 @@ OnyuanStruct Onyuan;
 
 inline void PrintLn(const char *sz) {
   printf("%s\n", sz);
+  Onyuan.WriteLine("%s\n", sz);
   fflush(stdout);
 }
 
-void run(const char* szLineStr){
+void OnyuanStruct::StartEngine() {
+
+	LocatePath(Search.szBookFile, "BOOK.DAT");
+	PreGenInit();
+	NewHash(24); // 24=16MB, 25=32MB, 26=64MB, ...
+	Search.pos.FromFen(cszStartFen);
+	Search.pos.nDistance = 0;
+	Search.pos.PreEvaluate();
+	Search.nBanMoves = 0;
+	Search.bQuit = Search.bBatch = Search.bDebug = false;
+	Search.bUseHash = Search.bUseBook = Search.bNullMove = Search.bKnowledge = true;
+	Search.bIdle = false;
+	Search.nCountMask = INTERRUPT_COUNT - 1;
+	Search.nRandomMask = 0;
+	Search.rc4Random.InitRand();
+	PrintLn("ucciok");
+}
+
+void OnyuanStruct::RunEngine(const char* szLineStr){
 	int i;
 	bool bPonderTime;
-
-    char *lp;
-    strcpy(lp, szLineStr);
+	bPonderTime = false;
 
 	UcciCommStruct UcciComm;
 	PositionStruct posProbe;
 
-	switch (Translate(UcciComm, lp)) {
+	switch (Translate(UcciComm, szLineStr)) {
 		case UCCI_COMM_ISREADY:
 		PrintLn("readyok");
 		break;
@@ -189,7 +206,7 @@ void run(const char* szLineStr){
 	}
 }
 
-bool stop(const char* szLineStr){
+bool OnyuanStruct::StopEngine(const char* szLineStr){
 	// char *lp;
 	// UcciCommStruct UcciComm;
 	// PositionStruct posProbe;

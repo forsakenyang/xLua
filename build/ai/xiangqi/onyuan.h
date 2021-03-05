@@ -12,10 +12,11 @@ struct OnyuanStruct {
 
     bool ReadLine(char *szLineStr);
     void WriteLine(const char *format, ...);
+
+    void StartEngine();
+    void RunEngine(const char* szLineStr);
+    bool StopEngine(const char* szLineStr = NULL);
 };
 
 
 extern OnyuanStruct Onyuan;
-
-void run(const char* szLineStr);
-bool stop(const char* szLineStr);

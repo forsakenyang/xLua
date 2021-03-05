@@ -249,7 +249,7 @@ void OnyuanStruct::WriteLine(const char *format, ...) {
 	mutexLine.lock();
 	va_list ap;
 	va_start(ap, format);
-	_vsnprintf(szLineStr, format, ap);
+	vsnprintf(szLineStr, format, ap);
 	va_end(ap);
 
 	int nStrLen;

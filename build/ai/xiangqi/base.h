@@ -1,5 +1,12 @@
 #include <assert.h>
+#ifdef HAVE_GETTIMEOFDAY
 #include <sys/timeb.h>
+#else
+#include <sys/timeb.h>
+#endif
+#include<iostream>
+#include<algorithm>
+using namespace std;
 
 #ifndef BASE_H
 #define BASE_H

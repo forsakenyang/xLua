@@ -8,6 +8,7 @@
 #include "hash.h"
 #include "search.h"
 #include "base.h"
+#include <stdarg.h>
 
 #include <thread>
 #include <mutex>

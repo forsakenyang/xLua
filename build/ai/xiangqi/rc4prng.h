@@ -31,8 +31,6 @@ struct RC4Struct {
       uint32_t dw[2];
       uint64_t qw;
     } Seed;
-    timeb tb;
-    ftime(&tb);
 
     Seed.qw = 0;
 

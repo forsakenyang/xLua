@@ -248,9 +248,9 @@ void OnyuanStruct::StopEngine() {
 void OnyuanStruct::WriteLine(const char *format, ...) {
 	mutexLine.lock();
 	va_list ap;
-	__crt_va_start(ap, format);
-	vsprintf_s(szLineStr, format, ap);
-	__crt_va_end(ap);
+	va_start(ap, format);
+	_vsnprintf(szLineStr, format, ap);
+	va_end(ap);
 
 	int nStrLen;
 	nStrLen = strlen(szLineStr);

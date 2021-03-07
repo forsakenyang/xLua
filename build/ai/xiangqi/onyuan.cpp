@@ -243,12 +243,11 @@ void OnyuanStruct::StopEngine() {
 }
 
 void OnyuanStruct::RunEngine(const char *szLineStr) {
+	CommandIn(szLineStr);
 	if (!is_running)
 	{
 		is_running = true;
 		onyuanThread = std::thread(Run);
-	}else{
-		CommandIn(szLineStr);
 	}
 }
 

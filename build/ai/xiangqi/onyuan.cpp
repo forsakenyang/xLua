@@ -31,24 +31,7 @@ static void Run() {
 	UcciCommStruct UcciComm;
 	PositionStruct posProbe;
 
-	LocatePath(Search.szBookFile, "BOOK.DAT");
-	PreGenInit();
-	NewHash(24); // 24=16MB, 25=32MB, 26=64MB, ...
-	Search.pos.FromFen(cszStartFen);
-	Search.pos.nDistance = 0;
-	Search.pos.PreEvaluate();
-	Search.nBanMoves = 0;
-	Search.bQuit = Search.bBatch = Search.bDebug = false;
-	Search.bUseHash = Search.bUseBook = Search.bNullMove = Search.bKnowledge = true;
-	Search.bIdle = false;
-	Search.nCountMask = INTERRUPT_COUNT - 1;
-	Search.nRandomMask = 0;
-	Search.rc4Random.InitRand();
-	PrintLn("ucciok");
-
-	while (!Search.bQuit)
-	{
-		switch (IdleLine(UcciComm, Search.bDebug)) {
+	switch (IdleLine(UcciComm, Search.bDebug)) {
 		case UCCI_COMM_ISREADY:
 			PrintLn("readyok");
 			break;
@@ -208,11 +191,9 @@ static void Run() {
 			break;
 		default:
 			break;
-		}
 	}
-	DelHash();
-	PrintLn("bye");
-
+	
+	is_running = false;
 	return;
 }
 
@@ -230,19 +211,45 @@ void OnyuanStruct::StartEngine() {
 	nCommandReadEnd = 0;
 	szBuffer[0] = '\0';
 	szCommBuffer[0] = '\0';
-	is_running = true;
-	onyuanThread = std::thread(Run);
+
+	LocatePath(Search.szBookFile, "BOOK.DAT");
+	PreGenInit();
+	DelHash();
+	NewHash(24); // 24=16MB, 25=32MB, 26=64MB, ...
+	Search.pos.FromFen(cszStartFen);
+	Search.pos.nDistance = 0;
+	Search.pos.PreEvaluate();
+	Search.nBanMoves = 0;
+	Search.bQuit = Search.bBatch = Search.bDebug = false;
+	Search.bUseHash = Search.bUseBook = Search.bNullMove = Search.bKnowledge = true;
+	Search.bIdle = false;
+	Search.nCountMask = INTERRUPT_COUNT - 1;
+	Search.nRandomMask = 0;
+	Search.rc4Random.InitRand();
+	PrintLn("ucciok");
 }
 
 void OnyuanStruct::StopEngine() {
 	if (!is_running)
 	{
 		return;
+	}else{
+		is_running = false;
+		CommandIn("quit");
+		onyuanThread.join();
 	}
-	is_running = false;
+	DelHash();
+	PrintLn("bye");
+}
 
-	CommandIn("quit");
-	onyuanThread.join();
+void OnyuanStruct::RunEngine(const char *szLineStr) {
+	if (!is_running)
+	{
+		is_running = true;
+		onyuanThread = std::thread(Run);
+	}else{
+		CommandIn(szLineStr);
+	}
 }
 
 void OnyuanStruct::WriteLine(const char *format, ...) {

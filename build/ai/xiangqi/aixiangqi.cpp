@@ -337,6 +337,13 @@ static int stop_engine(lua_State* L){
 	return 1;
 }
 
+static int run_engine(lua_State* L){
+	size_t len = 0;
+	const char* szLineStr = luaL_checklstring(L, 1, &len);
+	Onyuan.RunEngine(szLineStr);
+	return 1;
+}
+
 static int ucci_output(lua_State* L){
 	char szLineStr[LINE_INPUT_MAX_CHAR];
 	if (Onyuan.ReadLine(szLineStr))
@@ -393,6 +400,8 @@ static const luaL_Reg methods[] =
 
 	{ "start_engine", start_engine },
 	{ "stop_engine", stop_engine },
+	{ "run_engine", run_engine },
+
 	{ "ucci_output", ucci_output },
 	{ "ucci_input", ucci_input },
 

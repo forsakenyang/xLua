@@ -19,6 +19,8 @@ struct OnyuanStruct {
 
     void StartEngine();
     void StopEngine();
+    void RunEngine(const char* szCommandStr); 
+
 
     bool CommandOut(char* szLineStr);         // ucci 读取指令
     void CommandIn(const char* szCommandStr); // 给ucci引擎发送指令

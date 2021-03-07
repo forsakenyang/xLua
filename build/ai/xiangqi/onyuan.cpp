@@ -17,6 +17,11 @@
 
 OnyuanStruct Onyuan;
 
+std::mutex mutexLine;   //互斥量
+std::mutex mutexCommand;//互斥量
+std::thread onyuanThread;
+std::atomic_bool is_running;
+
 inline void PrintLn(const char *sz) {
   printf("%s\n", sz);
   Onyuan.WriteLine("%s\n", sz);
@@ -196,11 +201,6 @@ static void Run() {
 	is_running = false;
 	return;
 }
-
-std::mutex mutexLine;   //互斥量
-std::mutex mutexCommand;//互斥量
-std::thread onyuanThread;
-std::atomic_bool is_running;
 
 void OnyuanStruct::StartEngine() {
 	if (is_running) {

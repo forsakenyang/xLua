@@ -332,6 +332,31 @@ static int start_engine(lua_State* L){
 	return 1;
 }
 
+static int open_stdout_file(lua_State* L){
+	size_t len = 0;
+	const char* szLineStr = luaL_checklstring(L, 1, &len);
+	freopen(szLineStr, "w", stdout);
+	return 1;
+}
+
+static int open_stdin_file(lua_State* L){
+	size_t len = 0;
+	const char* szLineStr = luaL_checklstring(L, 1, &len);
+	freopen(szLineStr, "r", stdin);
+	return 1;
+}
+
+static int close_stdout_file(lua_State* L){
+	fclose(stdout);
+	return 1;
+}
+
+static int close_stdin_file(lua_State* L){
+	fclose(stdin);
+	return 1;
+}
+
+
 static int stop_engine(lua_State* L){
 	Onyuan.StopEngine();
 	return 1;
@@ -344,15 +369,6 @@ static int run_engine(lua_State* L){
 	return 1;
 }
 
-static int ucci_output(lua_State* L){
-	char szLineStr[LINE_INPUT_MAX_CHAR];
-	if (Onyuan.ReadLine(szLineStr))
-	{
-		lua_pushstring(L, szLineStr);
-		return 1;
-	}
-	return 0;
-}
 
 static int ucci_input(lua_State* L){
 	size_t len = 0;
@@ -401,10 +417,12 @@ static const luaL_Reg methods[] =
 	{ "start_engine", start_engine },
 	{ "stop_engine", stop_engine },
 	{ "run_engine", run_engine },
+	{ "open_stdin_file", open_stdin_file },
+	{ "open_stdout_file", open_stdout_file },
+	{ "close_stdin_file", close_stdin_file },
+	{ "close_stdout_file", close_stdout_file },
 
-	{ "ucci_output", ucci_output },
 	{ "ucci_input", ucci_input },
-
 
 	{ NULL, NULL }
 };

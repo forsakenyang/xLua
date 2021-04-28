@@ -24,7 +24,6 @@ std::atomic_bool is_running;
 
 inline void PrintLn(const char *sz) {
   printf("%s\n", sz);
-  Onyuan.WriteLine("%s\n", sz);
   fflush(stdout);
 }
 
@@ -207,9 +206,7 @@ void OnyuanStruct::StartEngine() {
 		return;
 	}
 
-	nReadEnd = 0;
 	nCommandReadEnd = 0;
-	szBuffer[0] = '\0';
 	szCommBuffer[0] = '\0';
 
 	LocatePath(Search.szBookFile, "BOOK.DAT");
@@ -251,53 +248,6 @@ void OnyuanStruct::RunEngine(const char *szLineStr) {
 	}
 }
 
-void OnyuanStruct::WriteLine(const char *format, ...) {
-	mutexLine.lock();
-	va_list ap;
-	va_start(ap, format);
-	vsprintf(szLineStr, format, ap);
-	va_end(ap);
-
-	int nStrLen;
-	nStrLen = strlen(szLineStr);
-
-	if ((nStrLen + nReadEnd) >= LINE_INPUT_MAX_CHAR) {
-		nReadEnd = 0;
-	}
-
-	memcpy(szBuffer + nReadEnd, szLineStr, nStrLen);
-	nReadEnd += nStrLen;
-	szBuffer[nReadEnd] = '\0';
-
-	mutexLine.unlock();
-}
-
-bool OnyuanStruct::ReadLine(char *szLineStr) {
-	mutexLine.lock();
-	char* lpFeedEnd;
-	int nFeedEnd;
-	lpFeedEnd = (char*)memchr(szBuffer, '\n', nReadEnd);
-	if (lpFeedEnd == NULL) {
-		mutexLine.unlock();
-		return false;
-	}
-	else {
-		nFeedEnd = lpFeedEnd - szBuffer;
-		memcpy(szLineStr, szBuffer, nFeedEnd);
-		szLineStr[nFeedEnd] = '\0';
-		nFeedEnd++;
-		nReadEnd -= nFeedEnd;
-		memcpy(szBuffer, szBuffer + nFeedEnd, nReadEnd);
-		lpFeedEnd = (char*)strchr(szLineStr, '\r');
-		if (lpFeedEnd != NULL) {
-			*lpFeedEnd = '\0';
-		}
-		
-		mutexLine.unlock();
-		return true;
-	}
-	
-}
 
 void OnyuanStruct::CommandIn(const char* szCommandStr) {
 	mutexCommand.lock();

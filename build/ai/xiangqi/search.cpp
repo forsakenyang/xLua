@@ -108,7 +108,6 @@ static bool Interrupt(void) {
    case UCCI_COMM_ISREADY:
      // "isready"指令实际上没有意义
      printf("readyok\n");
-     Onyuan.WriteLine("readyok\n");
      fflush(stdout);
      return false;
    case UCCI_COMM_PONDERHIT:
@@ -163,7 +162,6 @@ static void PopPvLine(int nDepth = 0, int vl = 0) {
   }
   // 输出时间和搜索结点数
   printf("info time %d nodes %d\n", (int) (GetTime() - Search2.llTime), Search2.nAllNodes);
-  Onyuan.WriteLine("info time %d nodes %d\n", (int) (GetTime() - Search2.llTime), Search2.nAllNodes);
   fflush(stdout);
   if (nDepth == 0) {
     // 如果是搜索结束后的输出，并且已经输出过，那么不必再输出
@@ -178,17 +176,14 @@ static void PopPvLine(int nDepth = 0, int vl = 0) {
     Search2.nPopDepth = Search2.vlPopValue = 0;
   }
   printf("info depth %d score %d pv", nDepth, vl);
-  Onyuan.WriteLine("info depth %d score %d pv", nDepth, vl);
 
   lpwmv = Search2.wmvPvLine;
   while (*lpwmv != 0) {
     dwMoveStr = MOVE_COORD(*lpwmv);
     printf(" %.4s", (const char *) &dwMoveStr);
-    Onyuan.WriteLine(" %.4s", (const char *) &dwMoveStr);
     lpwmv ++;
   }
   printf("\n");
-  Onyuan.WriteLine("\n");
   fflush(stdout);
 }
 
@@ -322,7 +317,6 @@ void PopLeaf(PositionStruct &pos) {
   Search2.nAllNodes = 0;
   vl = SearchQuiesc(pos, -MATE_VALUE, MATE_VALUE);
   printf("pophash lowerbound %d depth 0 upperbound %d depth 0\n", vl, vl);
-  Onyuan.WriteLine("pophash lowerbound %d depth 0 upperbound %d depth 0\n", vl, vl);
   fflush(stdout);
 }
 
@@ -608,7 +602,6 @@ static int SearchRoot(int nDepth) {
         dwMoveStr = MOVE_COORD(mv);
         nCurrMove ++;
         printf("info currmove %.4s currmovenumber %d\n", (const char *) &dwMoveStr, nCurrMove);
-        Onyuan.WriteLine("info currmove %.4s currmovenumber %d\n", (const char *) &dwMoveStr, nCurrMove);
         fflush(stdout);
       }
 #endif
@@ -694,7 +687,6 @@ void SearchMain(int nDepth) {
   if (Search.pos.IsDraw() || Search.pos.RepStatus(3) > 0) {
 #ifndef CCHESS_A3800
     printf("nobestmove\n");
-    Onyuan.WriteLine("nobestmove\n");
     fflush(stdout);
 #endif
     return;    
@@ -711,7 +703,6 @@ void SearchMain(int nDepth) {
         vl += bks[i].wvl;
         dwMoveStr = MOVE_COORD(bks[i].wmv);
         printf("info depth 0 score %d pv %.4s\n", bks[i].wvl, (const char *) &dwMoveStr);
-        Onyuan.WriteLine("info depth 0 score %d pv %.4s\n", bks[i].wvl, (const char *) &dwMoveStr);
         fflush(stdout);
       }
       // b. 根据权重随机选择一个走法
@@ -729,17 +720,14 @@ void SearchMain(int nDepth) {
       if (Search.pos.RepStatus(3) == 0) {
         dwMoveStr = MOVE_COORD(bks[i].wmv);
         printf("bestmove %.4s", (const char *) &dwMoveStr);
-        Onyuan.WriteLine("bestmove %.4s", (const char *) &dwMoveStr);
         // d. 给出后台思考的着法(开局库中第一个即权重最大的后续着法)
         nBookMoves = GetBookMoves(Search.pos, Search.szBookFile, bks);
         Search.pos.UndoMakeMove();
         if (nBookMoves > 0) {
           dwMoveStr = MOVE_COORD(bks[0].wmv);
           printf(" ponder %.4s", (const char *) &dwMoveStr);
-          Onyuan.WriteLine(" ponder %.4s", (const char *) &dwMoveStr);
         }
         printf("\n");
-        Onyuan.WriteLine("\n");
         fflush(stdout);
         return;
       }
@@ -752,10 +740,8 @@ void SearchMain(int nDepth) {
   if (nDepth == 0) {
 #ifndef CCHESS_A3800
     printf("info depth 0 score %d\n", SearchQuiesc(Search.pos, -MATE_VALUE, MATE_VALUE));
-    Onyuan.WriteLine("info depth 0 score %d\n", SearchQuiesc(Search.pos, -MATE_VALUE, MATE_VALUE));
     fflush(stdout);
     printf("nobestmove\n");
-    Onyuan.WriteLine("nobestmove\n");
     fflush(stdout);
 #endif
     return;
@@ -789,7 +775,6 @@ void SearchMain(int nDepth) {
 #ifndef CCHESS_A3800
     if (Search2.bPopPv || Search.bDebug) {
       printf("info depth %d\n", i);
-      Onyuan.WriteLine("info depth %d\n", i);
       fflush(stdout);
     }
 
@@ -858,29 +843,23 @@ void SearchMain(int nDepth) {
     PopPvLine();
     dwMoveStr = MOVE_COORD(Search2.wmvPvLine[0]);
     printf("bestmove %.4s", (const char *) &dwMoveStr);
-    Onyuan.WriteLine("bestmove %.4s", (const char *) &dwMoveStr);
     if (Search2.wmvPvLine[1] != 0) {
       dwMoveStr = MOVE_COORD(Search2.wmvPvLine[1]);
       printf(" ponder %.4s", (const char *) &dwMoveStr);
-      Onyuan.WriteLine(" ponder %.4s", (const char *) &dwMoveStr);
     }
 
     // 13. 判断是否认输或提和，但是经过唯一着法检验的不适合认输或提和(因为搜索深度不够)
     if (!bUnique) {
       if (vlLast > -WIN_VALUE && vlLast < -RESIGN_VALUE) {
         printf(" resign");
-        Onyuan.WriteLine(" resign");
       } else if (Search.bDraw && !Search.pos.NullSafe() && vlLast < DRAW_OFFER_VALUE * 2) {
         printf(" draw");
-        Onyuan.WriteLine(" draw");
       }
     }
   } else {
     printf("nobestmove");
-    Onyuan.WriteLine("nobestmove");
   }
   printf("\n");
-  Onyuan.WriteLine("\n");
   fflush(stdout);
 // #endif
 }

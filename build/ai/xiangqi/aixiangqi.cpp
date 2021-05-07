@@ -37,7 +37,7 @@ static int PosGetSdPlayer(lua_State* L)
 static int PosUndoMakeMove(lua_State* L)
 {
 	bool bRemoveInstance = (luaL_checkinteger(L, 1) != 0);
-	Search.pos.UndoMakeMove(bRemoveInstance);
+	Search.pos.UndoMakeMove();
 
 	return 0;
 }
@@ -47,7 +47,7 @@ static int PosMakeMove(lua_State* L)
 {
 	int mv = luaL_checkinteger(L, 1);
 	bool bAddInstance = (luaL_checkinteger(L, 2) != 0);
-	lua_pushboolean(L, Search.pos.MakeMove(mv, bAddInstance) ? 1 : 0);
+	lua_pushboolean(L, Search.pos.MakeMove(mv) ? 1 : 0);
 	return 1;
 }
  

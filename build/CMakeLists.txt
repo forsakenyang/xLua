@@ -54,16 +54,19 @@ set (THIRDPART_SRC ${THIRDPART_SRC} ${RAPIDJSON_SRC})
 #end lua-rapidjson
 
 #begin ai-xiangqi
-set (AI_XIANGQI_SRC ai/xiangqi/book.cpp 
-ai/xiangqi/evaluate.cpp
-ai/xiangqi/genmoves.cpp
-ai/xiangqi/hashes.cpp
-ai/xiangqi/movesort.cpp
-ai/xiangqi/position.cpp
-ai/xiangqi/preeval.cpp
-ai/xiangqi/pregen.cpp
-ai/xiangqi/search.cpp
-ai/xiangqi/aixiangqi.cpp)
+set (AI_XIANGQI_SRC ai/xiangqi/aixiangqi.cpp
+ai/xiangqi/base/wsockbas.cpp
+ai/xiangqi/base/pipe.cpp
+ai/xiangqi/eleeye/book.cpp
+ai/xiangqi/eleeye/evaluate.cpp
+ai/xiangqi/eleeye/genmoves.cpp
+ai/xiangqi/eleeye/hash.cpp
+ai/xiangqi/eleeye/movesort.cpp
+ai/xiangqi/eleeye/position.cpp
+ai/xiangqi/eleeye/preeval.cpp
+ai/xiangqi/eleeye/pregen.cpp
+ai/xiangqi/eleeye/search.cpp
+ai/xiangqi/eleeye/ucci.cpp)
 set_property(
 	SOURCE ${AI_XIANGQI_SRC}
 	APPEND

@@ -7,10 +7,35 @@
 #ifdef _WIN32
 
 #include <windows.h>
-#include <shlwapi.h>
+// #include <shlwapi.h>
+
+inline char* strstri(const char * inBuffer, const char * inSearchStr)
+{
+    const char*  currBuffPointer = inBuffer;
+
+    while (*currBuffPointer != 0x00)
+    {
+        const char* compareOne = currBuffPointer;
+        const char* compareTwo = inSearchStr;
+        //统一转换为小写字符
+        while (tolower(*compareOne) == tolower(*compareTwo))
+        {
+            compareOne++;
+            compareTwo++;
+            if (*compareTwo == 0x00)
+            {
+                return (char*) currBuffPointer;
+            }
+
+        }
+        currBuffPointer++; 
+    }
+    return NULL;
+}
 
 inline char *strcasestr(const char *sz1, const char *sz2) {
-  return StrStrI(sz1, sz2);
+  return strstri(sz1, sz2);
+  // return StrStrI(sz1, sz2);
 }
 
 #endif

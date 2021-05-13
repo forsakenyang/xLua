@@ -31,6 +31,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "search.h"
 #include "onyuan.h"
 #include <thread>
+#include <atomic>
 
 const int INTERRUPT_COUNT = 4096; // 搜索若干结点后调用中断
 std::thread hThread;

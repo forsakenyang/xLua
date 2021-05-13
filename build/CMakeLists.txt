@@ -55,7 +55,6 @@ set (THIRDPART_SRC ${THIRDPART_SRC} ${RAPIDJSON_SRC})
 
 #begin ai-xiangqi
 set (AI_XIANGQI_SRC ai/xiangqi/aixiangqi.cpp
-ai/xiangqi/base/wsockbas.cpp
 ai/xiangqi/base/pipe.cpp
 ai/xiangqi/eleeye/book.cpp
 ai/xiangqi/eleeye/evaluate.cpp
@@ -66,7 +65,8 @@ ai/xiangqi/eleeye/position.cpp
 ai/xiangqi/eleeye/preeval.cpp
 ai/xiangqi/eleeye/pregen.cpp
 ai/xiangqi/eleeye/search.cpp
-ai/xiangqi/eleeye/ucci.cpp)
+ai/xiangqi/eleeye/ucci.cpp
+ai/xiangqi/eleeye/onyuan.cpp)
 set_property(
 	SOURCE ${AI_XIANGQI_SRC}
 	APPEND

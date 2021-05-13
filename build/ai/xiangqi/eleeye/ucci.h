@@ -10,6 +10,7 @@ can be used without restriction.
 */
 
 #include "../base/base.h"
+#include "../base/pipe.h"
 
 #ifndef UCCI_H
 #define UCCI_H

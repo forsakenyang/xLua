@@ -33,6 +33,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #endif
 #include "movesort.h"
 #include "search.h"
+#include "onyuan.h"
 
 const int IID_DEPTH = 2;         // 内部迭代加深的深度
 const int SMP_DEPTH = 6;         // 并行搜索的深度
@@ -105,8 +106,8 @@ static bool Interrupt(void) {
   switch (BusyLine(UcciComm, Search.bDebug)) {
   case UCCI_COMM_ISREADY:
     // "isready"指令实际上没有意义
-    printf("readyok\n");
-    fflush(stdout);
+    PrintOnyuan("readyok\n");
+    
     return false;
   case UCCI_COMM_PONDERHIT:
     // "ponderhit"指令启动计时功能，如果"SearchMain()"例程认为已经搜索了足够的时间， 那么发出中止信号
@@ -159,8 +160,8 @@ static void PopPvLine(int nDepth = 0, int vl = 0) {
     return;
   }
   // 输出时间和搜索结点数
-  printf("info time %d nodes %d\n", (int) (GetTime() - Search2.llTime), Search2.nAllNodes);
-  fflush(stdout);
+  PrintOnyuan("info time %d nodes %d\n", (int) (GetTime() - Search2.llTime), Search2.nAllNodes);
+  
   if (nDepth == 0) {
     // 如果是搜索结束后的输出，并且已经输出过，那么不必再输出
     if (Search2.nPopDepth == 0) {
@@ -173,15 +174,15 @@ static void PopPvLine(int nDepth = 0, int vl = 0) {
     // 达到需要输出的深度，那么以后不必再输出
     Search2.nPopDepth = Search2.vlPopValue = 0;
   }
-  printf("info depth %d score %d pv", nDepth, vl);
+  PrintOnyuan("info depth %d score %d pv", nDepth, vl);
   lpwmv = Search2.wmvPvLine;
   while (*lpwmv != 0) {
     dwMoveStr = MOVE_COORD(*lpwmv);
-    printf(" %.4s", (const char *) &dwMoveStr);
+    PrintOnyuan(" %.4s", (const char *) &dwMoveStr);
     lpwmv ++;
   }
-  printf("\n");
-  fflush(stdout);
+  PrintOnyuan("\n");
+  
 }
 
 #endif
@@ -313,8 +314,8 @@ void PopLeaf(PositionStruct &pos) {
   int vl;
   Search2.nAllNodes = 0;
   vl = SearchQuiesc(pos, -MATE_VALUE, MATE_VALUE);
-  printf("pophash lowerbound %d depth 0 upperbound %d depth 0\n", vl, vl);
-  fflush(stdout);
+  PrintOnyuan("pophash lowerbound %d depth 0 upperbound %d depth 0\n", vl, vl);
+  
 }
 
 #endif
@@ -598,8 +599,8 @@ static int SearchRoot(int nDepth) {
       if (Search2.bPopCurrMove || Search.bDebug) {
         dwMoveStr = MOVE_COORD(mv);
         nCurrMove ++;
-        printf("info currmove %.4s currmovenumber %d\n", (const char *) &dwMoveStr, nCurrMove);
-        fflush(stdout);
+        PrintOnyuan("info currmove %.4s currmovenumber %d\n", (const char *) &dwMoveStr, nCurrMove);
+        
       }
 #endif
 
@@ -683,8 +684,8 @@ void SearchMain(int nDepth) {
   // 1. 遇到和棋则直接返回
   if (Search.pos.IsDraw() || Search.pos.RepStatus(3) > 0) {
 #ifndef CCHESS_A3800
-    printf("nobestmove\n");
-    fflush(stdout);
+    PrintOnyuan("nobestmove\n");
+    
 #endif
     return;    
   }
@@ -699,8 +700,8 @@ void SearchMain(int nDepth) {
       for (i = 0; i < nBookMoves; i ++) {
         vl += bks[i].wvl;
         dwMoveStr = MOVE_COORD(bks[i].wmv);
-        printf("info depth 0 score %d pv %.4s\n", bks[i].wvl, (const char *) &dwMoveStr);
-        fflush(stdout);
+        PrintOnyuan("info depth 0 score %d pv %.4s\n", bks[i].wvl, (const char *) &dwMoveStr);
+        
       }
       // b. 根据权重随机选择一个走法
       vl = Search.rc4Random.NextLong() % (uint32_t) vl;
@@ -716,16 +717,16 @@ void SearchMain(int nDepth) {
       Search.pos.MakeMove(bks[i].wmv);
       if (Search.pos.RepStatus(3) == 0) {
         dwMoveStr = MOVE_COORD(bks[i].wmv);
-        printf("bestmove %.4s", (const char *) &dwMoveStr);
+        PrintOnyuan("bestmove %.4s", (const char *) &dwMoveStr);
         // d. 给出后台思考的着法(开局库中第一个即权重最大的后续着法)
         nBookMoves = GetBookMoves(Search.pos, Search.szBookFile, bks);
         Search.pos.UndoMakeMove();
         if (nBookMoves > 0) {
           dwMoveStr = MOVE_COORD(bks[0].wmv);
-          printf(" ponder %.4s", (const char *) &dwMoveStr);
+          PrintOnyuan(" ponder %.4s", (const char *) &dwMoveStr);
         }
-        printf("\n");
-        fflush(stdout);
+        PrintOnyuan("\n");
+        
         return;
       }
       Search.pos.UndoMakeMove();
@@ -736,10 +737,10 @@ void SearchMain(int nDepth) {
   // 3. 如果深度为零则返回静态搜索值
   if (nDepth == 0) {
 #ifndef CCHESS_A3800
-    printf("info depth 0 score %d\n", SearchQuiesc(Search.pos, -MATE_VALUE, MATE_VALUE));
-    fflush(stdout);
-    printf("nobestmove\n");
-    fflush(stdout);
+    PrintOnyuan("info depth 0 score %d\n", SearchQuiesc(Search.pos, -MATE_VALUE, MATE_VALUE));
+    
+    PrintOnyuan("nobestmove\n");
+    
 #endif
     return;
   }
@@ -771,8 +772,8 @@ void SearchMain(int nDepth) {
     // 需要输出主要变例时，第一个"info depth n"是不输出的
 #ifndef CCHESS_A3800
     if (Search2.bPopPv || Search.bDebug) {
-      printf("info depth %d\n", i);
-      fflush(stdout);
+      PrintOnyuan("info depth %d\n", i);
+      
     }
 
     // 7. 根据搜索的时间决定，是否需要输出主要变例和当前思考的着法
@@ -838,24 +839,24 @@ void SearchMain(int nDepth) {
   if (Search2.wmvPvLine[0] != 0) {
     PopPvLine();
     dwMoveStr = MOVE_COORD(Search2.wmvPvLine[0]);
-    printf("bestmove %.4s", (const char *) &dwMoveStr);
+    PrintOnyuan("bestmove %.4s", (const char *) &dwMoveStr);
     if (Search2.wmvPvLine[1] != 0) {
       dwMoveStr = MOVE_COORD(Search2.wmvPvLine[1]);
-      printf(" ponder %.4s", (const char *) &dwMoveStr);
+      PrintOnyuan(" ponder %.4s", (const char *) &dwMoveStr);
     }
 
     // 13. 判断是否认输或提和，但是经过唯一着法检验的不适合认输或提和(因为搜索深度不够)
     if (!bUnique) {
       if (vlLast > -WIN_VALUE && vlLast < -RESIGN_VALUE) {
-        printf(" resign");
+        PrintOnyuan(" resign");
       } else if (Search.bDraw && !Search.pos.NullSafe() && vlLast < DRAW_OFFER_VALUE * 2) {
-        printf(" draw");
+        PrintOnyuan(" draw");
       }
     }
   } else {
-    printf("nobestmove");
+    PrintOnyuan("nobestmove");
   }
-  printf("\n");
-  fflush(stdout);
+  PrintOnyuan("\n");
+  
 #endif
 }

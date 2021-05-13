@@ -14,7 +14,7 @@
 
 #include "eleeye/search.h"
 #include "eleeye/hash.h"
-
+#include "eleeye/onyuan.h"
 
 const int INTERRUPT_COUNT = 4096; // 搜索若干结点后调用中断
 
@@ -326,6 +326,32 @@ static int XqTryAsyncSearch(lua_State* L)
 	return 1;
 }
 
+//----------------------新加------------- 
+static int EleeyeStart(lua_State* L){
+	StartEleeye();
+	return 0;
+}
+
+static int EleeyeStop(lua_State* L){
+	StopEleeye();
+	return 0;
+}
+
+static int EleeyeInput(lua_State* L){
+	size_t len = 0;
+	const char* input = luaL_checklstring(L, 1, &len);
+	Input(input);
+	return 0;
+}
+
+static int EleeyeOutput(lua_State* L){
+	char szLineStr[LINE_INPUT_MAX_CHAR];
+	if(Output(szLineStr)){
+		lua_pushlstring(L, szLineStr, LINE_INPUT_MAX_CHAR);
+	}
+	return 0;
+}
+
 
 static const luaL_Reg methods[] =
 {
@@ -348,8 +374,6 @@ static const luaL_Reg methods[] =
 	{ "PosEvaluate", PosEvaluate },
 	{ "PosMaterial", PosMaterial },
 
-
-
 	{ "XqSearchMain", XqSearchMain },
 	{ "XqInitAI_0", XqInitAI_0 },
 	{ "XqInitAI_1", XqInitAI_1 },
@@ -362,6 +386,11 @@ static const luaL_Reg methods[] =
 	{ "XqUnlock", XqUnlock },
 	{ "XqAsyncSearch", XqAsyncSearch },
 	{ "XqTryAsyncSearch", XqTryAsyncSearch },
+
+	{"EleeyeStart", EleeyeStart},
+	{"EleeyeStop", EleeyeStop},
+	{ "EleeyeInput", EleeyeInput },
+	{ "EleeyeOutput", EleeyeOutput },
 
 	{ NULL, NULL }
 };

@@ -22,7 +22,7 @@ can be used without restriction.
  * 前两个解释器都等待是否有输入，如果没有输入则执行待机指令"Idle()"
  * 而第三个解释器("BusyLine()"，只用在引擎思考时)则在没有输入时直接返回"UCCI_COMM_UNKNOWN"
  */
-static PipeStruct pipeStd;
+
 
 const int MAX_MOVE_NUM = 1024;
 
@@ -58,7 +58,6 @@ static bool ParsePos(UcciCommStruct &UcciComm, char *lp) {
 
 UcciCommEnum BootLine(void) {
   char szLineStr[LINE_INPUT_MAX_CHAR];
-  pipeStd.Open();
   while (!pipeStd.LineInput(szLineStr)) {
     Idle();
   }

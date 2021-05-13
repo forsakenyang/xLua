@@ -50,9 +50,7 @@ struct SearchStruct {
   int nRandomMask, nBanMoves;        // 随机性屏蔽位和禁着数
   uint16_t wmvBanList[MAX_MOVE_NUM]; // 禁着列表
   char szBookFile[1024];             // 开局库
-// #ifdef CCHESS_A3800
   int mvResult;                      // 返回着法
-// #endif
 };
 
 extern SearchStruct Search;

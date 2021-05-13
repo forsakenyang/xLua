@@ -329,27 +329,29 @@ static int XqTryAsyncSearch(lua_State* L)
 //----------------------ÐÂ¼Ó------------- 
 static int EleeyeStart(lua_State* L){
 	StartEleeye();
-	return 0;
+	return 1;
 }
 
 static int EleeyeStop(lua_State* L){
 	StopEleeye();
-	return 0;
+	return 1;
 }
 
 static int EleeyeInput(lua_State* L){
 	size_t len = 0;
 	const char* input = luaL_checklstring(L, 1, &len);
 	Input(input);
-	return 0;
+	return 1;
 }
 
 static int EleeyeOutput(lua_State* L){
 	char szLineStr[LINE_INPUT_MAX_CHAR];
 	if(Output(szLineStr)){
-		lua_pushlstring(L, szLineStr, LINE_INPUT_MAX_CHAR);
+		lua_pushstring(L, szLineStr);
+		return 1;
+	}else{
+		return 0;
 	}
-	return 0;
 }
 
 

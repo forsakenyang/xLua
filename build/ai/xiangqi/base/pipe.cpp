@@ -1,9 +1,4 @@
 #include <string.h>
-#ifdef _WIN32
-  #include <windows.h>
-#else
-  #include <unistd.h>
-#endif
 #include "base2.h"
 #include "pipe.h"
 
@@ -18,7 +13,6 @@ void PipeStruct::Close(void) const {
 
 
 void PipeStruct::LineOutput(const char *szLineStr){
-  DWORD dwBytes;
   int nStrLen;
   char szWriteBuffer[LINE_INPUT_MAX_CHAR];
   nStrLen = strlen(szLineStr);

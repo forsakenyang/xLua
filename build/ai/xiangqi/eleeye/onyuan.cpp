@@ -30,50 +30,16 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "hash.h"
 #include "search.h"
 #include "onyuan.h"
+#include <thread>
 
 const int INTERRUPT_COUNT = 4096; // 搜索若干结点后调用中断
-DWORD WINAPI EleeyeThreadFun(LPVOID lpParam);
-HANDLE hThread;
+std::thread hThread;
+std::atomic_bool eleeyeIsRun;
 
 PipeStruct pipeStd;
 PipeStruct pipeOut;
 
-int StartEleeye(void)
-{
-    if (hThread != NULL)
-        return 1;
-
-    pipeStd.Open();
-    pipeOut.Open();
-    PrintOnyuan("eleeye start");
-    hThread = CreateThread(
-        NULL,
-        0,
-        EleeyeThreadFun,
-        NULL,
-        0,
-        NULL);
-
-    return 0;
-}
-
-int StopEleeye(void) {
-    if (hThread == NULL)
-        return 1;
-
-    pipeStd.LineOutput("quit");
-    DWORD dw = WaitForSingleObject(hThread, 100);
-    if (dw == WAIT_TIMEOUT) {
-        TerminateThread(hThread, 2);
-    }
-    CloseHandle(hThread);
-    hThread = NULL;
-    pipeStd.Close();
-    pipeOut.Close();
-    return 0;
-}
-
-DWORD WINAPI EleeyeThreadFun(LPVOID lpParam)
+int EleeyeThreadFun()
 {
     int i;
     bool bPonderTime;
@@ -298,6 +264,32 @@ DWORD WINAPI EleeyeThreadFun(LPVOID lpParam)
     }
     DelHash();
     PrintOnyuan("bye");
+    return 0;
+}
+
+int StartEleeye(void)
+{
+    if (eleeyeIsRun)
+        return 1;
+
+    eleeyeIsRun = true;
+    pipeStd.Open();
+    pipeOut.Open();
+    PrintOnyuan("eleeye start");
+    hThread = std::thread(EleeyeThreadFun);
+    return 0;
+}
+
+int StopEleeye(void) {
+    if (!eleeyeIsRun)
+        return 1;
+
+    pipeStd.LineOutput("quit");
+    eleeyeIsRun = false;
+    hThread.join();
+
+    pipeStd.Close();
+    pipeOut.Close();
     return 0;
 }
 

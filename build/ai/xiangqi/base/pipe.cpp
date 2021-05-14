@@ -6,6 +6,7 @@
 void PipeStruct::Open(const char *szProcFile) {
   nEof = 0;
   nReadEnd = 0;
+  szBuffer[0] = '\0';
 }
 
 void PipeStruct::Close(void) const {
@@ -13,15 +14,20 @@ void PipeStruct::Close(void) const {
 
 
 void PipeStruct::LineOutput(const char *szLineStr){
-  int nStrLen;
+  int nStrLen, nSize, nLeft;
   char szWriteBuffer[LINE_INPUT_MAX_CHAR];
   nStrLen = strlen(szLineStr);
   memcpy(szWriteBuffer, szLineStr, nStrLen);
   szWriteBuffer[nStrLen] = '\r';
   szWriteBuffer[nStrLen + 1] = '\n';
 
-  memcpy(szBuffer + nReadEnd, szWriteBuffer, nStrLen + 2);
-  nReadEnd = nReadEnd + nStrLen + 2;
+  nSize = nStrLen + 2;
+  nLeft = LINE_INPUT_MAX_CHAR - nReadEnd;
+  if (nSize > nLeft) {
+      nSize = nLeft;
+  }
+  memcpy(szBuffer + nReadEnd, szWriteBuffer, nSize);
+  nReadEnd = nReadEnd + nSize;
 }
 
 bool PipeStruct::GetBuffer(char *szLineStr) {

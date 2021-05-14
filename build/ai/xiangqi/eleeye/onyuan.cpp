@@ -271,27 +271,27 @@ int EleeyeThreadFun()
 
 int StartEleeye(void)
 {
-    if (eleeyeIsRun)
-        return 1;
-
-    eleeyeIsRun = true;
     pipeStd.Open();
     pipeOut.Open();
     PrintOnyuan("eleeye start");
+
+    if (eleeyeIsRun)
+        return 1;
+    eleeyeIsRun = true;
     hThread = std::thread(EleeyeThreadFun);
     return 0;
 }
 
 int StopEleeye(void) {
+    pipeStd.Close();
+    pipeOut.Close();
+
     if (!eleeyeIsRun)
         return 1;
 
     pipeStd.LineOutput("quit");
     eleeyeIsRun = false;
     hThread.join();
-
-    pipeStd.Close();
-    pipeOut.Close();
     return 0;
 }
 
